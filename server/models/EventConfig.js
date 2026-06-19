@@ -39,6 +39,9 @@ const eventConfigSchema = new mongoose.Schema(
     themeDark:         { type: String, default: '#1A1A1A' },
     themeCardBg:       { type: String, default: '#FFFFFF' },
     themeCardOpacity:  { type: Number, default: 75 },
+    themeHeaderBg:     { type: String, default: '#F8F9FA' },
+    themeHeaderBgOpacity: { type: Number, default: 85 },
+    themeHeaderText:   { type: String, default: '#1A1A1A' },
     // Access control
     adminEmail:        { type: String, default: '' },
     adminPassword:     { type: String, default: '' },

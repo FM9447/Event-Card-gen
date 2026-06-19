@@ -178,6 +178,8 @@ export default function App() {
     '--color-charcoal': config.themeDark || '#1A1A1A',
     '--color-card-bg': hexToRgba(config.themeCardBg || '#FFFFFF', (config.themeCardOpacity ?? 75) / 100),
     '--color-card-border': hexToRgba(config.themeCardBg || '#FFFFFF', 0.25),
+    '--color-header-bg': hexToRgba(config.themeHeaderBg || '#F8F9FA', (config.themeHeaderBgOpacity ?? 85) / 100),
+    '--color-header-text': config.themeHeaderText || '#1A1A1A',
   };
 
   const rootStyle = {
@@ -315,16 +317,23 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-20 border-t border-slate-100 py-8 text-center bg-white/40 backdrop-blur-sm">
+      <footer
+        className="mt-20 border-t py-8 text-center transition-all duration-200"
+        style={{
+          background: 'var(--color-header-bg)',
+          color: 'var(--color-header-text)',
+          borderColor: 'rgba(226, 232, 240, 0.4)',
+        }}
+      >
         <div className="flex items-center justify-center gap-2 mb-2">
           <SparkleIcon size={14} color="var(--color-gemma-blue)" animate />
-          <span className="text-sm font-semibold text-charcoal">{config.eventName || 'Poster Gen'}</span>
+          <span className="text-sm font-semibold">{config.eventName || 'Poster Gen'}</span>
           <SparkleIcon size={14} color="var(--color-gemma-green)" animate />
         </div>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs opacity-75">
           Kozhikode · June 21, 2026 · A community event by{' '}
-          <span className="text-gemma-blue font-medium">Build with AI</span> &{' '}
-          <span className="text-gemma-green font-medium">µLearn</span>
+          <span className="font-semibold text-gemma-blue">Build with AI</span> &{' '}
+          <span className="font-semibold text-gemma-green">µLearn</span>
         </p>
       </footer>
 

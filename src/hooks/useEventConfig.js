@@ -28,6 +28,9 @@ const getDefaultConfig = (slug) => ({
   themeDark: '#1A1A1A',
   themeCardBg: '#FFFFFF',
   themeCardOpacity: 75,
+  themeHeaderBg: '#F8F9FA',
+  themeHeaderBgOpacity: 85,
+  themeHeaderText: '#1A1A1A',
   partners: [
     { id: '1', name: 'Build with AI',  logo: null },
     { id: '2', name: 'µLearn',         logo: null },

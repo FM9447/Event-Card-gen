@@ -1195,6 +1195,65 @@ export default function AdminPanel({
                           <span>Solid (100%)</span>
                         </div>
                       </div>
+
+                      {/* Header/Footer Background Color */}
+                      <div className="flex items-center justify-between gap-4 p-2 rounded-xl bg-white border border-slate-100">
+                        <div className="flex flex-col">
+                          <span className="text-xs font-semibold text-slate-700">Header/Footer Background</span>
+                          <span className="text-[10px] text-slate-400">Top and Bottom Bars Color</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={config.themeHeaderBg || '#F8F9FA'}
+                            onChange={(e) => onUpdateConfig({ themeHeaderBg: e.target.value })}
+                            className="w-8 h-8 rounded-lg cursor-pointer border border-slate-200 outline-none p-0 flex-shrink-0"
+                          />
+                          <span className="text-xs font-mono font-bold text-slate-700 w-16">
+                            {config.themeHeaderBg || '#F8F9FA'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Header/Footer Background Opacity */}
+                      <div className="space-y-1 p-2 rounded-xl bg-white border border-slate-100">
+                        <div className="flex justify-between text-xs">
+                          <span className="font-semibold text-slate-700">Header/Footer Opacity</span>
+                          <span className="font-semibold text-slate-500">{config.themeHeaderBgOpacity ?? 85}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="5"
+                          value={config.themeHeaderBgOpacity ?? 85}
+                          onChange={(e) => onUpdateConfig({ themeHeaderBgOpacity: parseInt(e.target.value) })}
+                          className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#4285F4]"
+                        />
+                        <div className="flex justify-between text-[10px] text-slate-400">
+                          <span>Transparent (0%)</span>
+                          <span>Solid (100%)</span>
+                        </div>
+                      </div>
+
+                      {/* Header/Footer Text Color */}
+                      <div className="flex items-center justify-between gap-4 p-2 rounded-xl bg-white border border-slate-100">
+                        <div className="flex flex-col">
+                          <span className="text-xs font-semibold text-slate-700">Header/Footer Text Color</span>
+                          <span className="text-[10px] text-slate-400">Bar text & Button Labels</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={config.themeHeaderText || '#1A1A1A'}
+                            onChange={(e) => onUpdateConfig({ themeHeaderText: e.target.value })}
+                            className="w-8 h-8 rounded-lg cursor-pointer border border-slate-200 outline-none p-0 flex-shrink-0"
+                          />
+                          <span className="text-xs font-mono font-bold text-slate-700 w-16">
+                            {config.themeHeaderText || '#1A1A1A'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="flex justify-end">
@@ -1206,6 +1265,9 @@ export default function AdminPanel({
                           themeDark: '#1A1A1A',
                           themeCardBg: '#FFFFFF',
                           themeCardOpacity: 75,
+                          themeHeaderBg: '#F8F9FA',
+                          themeHeaderBgOpacity: 85,
+                          themeHeaderText: '#1A1A1A',
                         })}
                         className="text-[10px] font-bold text-slate-400 hover:text-gemma-blue transition-colors uppercase tracking-wider"
                       >
@@ -1307,6 +1369,9 @@ export default function AdminPanel({
                           themeDark: '#1A1A1A',
                           themeCardBg: '#FFFFFF',
                           themeCardOpacity: 75,
+                          themeHeaderBg: '#F8F9FA',
+                          themeHeaderBgOpacity: 85,
+                          themeHeaderText: '#1A1A1A',
                         });
                       }
                     }}

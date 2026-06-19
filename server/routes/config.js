@@ -75,6 +75,7 @@ router.put('/:slug', async (req, res) => {
       'bannerUrl', 'bannerPublicId',
       'photoX', 'photoY', 'photoRadius', 'photoWidth', 'photoHeight', 'photoShape', 'photoRotation',
       'backgroundOpacity', 'themePrimary', 'themeSecondary', 'themeDark', 'themeCardBg', 'themeCardOpacity',
+      'themeHeaderBg', 'themeHeaderBgOpacity', 'themeHeaderText',
       'allowedEmails'
     ];
 

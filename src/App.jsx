@@ -603,13 +603,9 @@ function HomePage() {
     >
       {/* ── Sticky Header ── */}
       <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <img
-              src="/logo.png"
-              alt="Poster Gen Logo"
-              className="w-8 h-8 rounded-xl object-cover shadow-sm"
-            />
+            <img src="/logo.png" alt="Poster Gen Logo" className="w-8 h-8 rounded-xl object-cover shadow-sm" />
             <div>
               <span className="font-display font-black text-charcoal text-base tracking-tight">Poster Gen</span>
               {isMaster && isLoggedIn && (
@@ -652,278 +648,322 @@ function HomePage() {
           </p>
         </div>
 
-        {/* ── Body: public events + auth/dashboard side-by-side on desktop ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-6 lg:gap-10 items-start">
+        {/* ── Conditional body layout ── */}
+        {isLoggedIn ? (
+          /* ── LOGGED IN: events list left | create event right ── */
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-8 items-start animate-[fadeIn_0.5s_ease-out]">
 
-          {/* ── LEFT: Public Events + (logged-in dashboard) ── */}
-          <div className="space-y-6">
-            {/* Public Events Card (always visible) */}
-            <div className="bg-white/80 backdrop-blur rounded-3xl p-5 border border-slate-100 shadow-lg space-y-3 animate-[fadeIn_0.55s_ease-out]">
-              <h3 className="font-display font-bold text-charcoal text-sm flex items-center gap-2">
-                <span>🌐</span> Public Events
-              </h3>
-              <button
-                onClick={() => navigate('/events/gemma4-kozhikode')}
-                className="w-full p-4 rounded-2xl border border-slate-100 hover:border-gemma-green text-left flex items-center justify-between group bg-white shadow-sm transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gemma-green/10 flex items-center justify-center text-lg flex-shrink-0">💡</div>
-                  <div className="min-w-0">
-                    <h4 className="text-sm font-bold text-charcoal">Gemma 4 Launch Hub</h4>
-                    <p className="text-xs text-slate-400">Kozhikode · Open to all</p>
+            {/* LEFT */}
+            <div className="space-y-5">
+              {/* Public Events */}
+              <div className="bg-white/80 backdrop-blur rounded-3xl p-5 border border-slate-100 shadow-lg space-y-3">
+                <h3 className="font-display font-bold text-charcoal text-sm flex items-center gap-2">
+                  <span>🌐</span> Public Events
+                </h3>
+                <button
+                  onClick={() => navigate('/events/gemma4-kozhikode')}
+                  className="w-full p-4 rounded-2xl border border-slate-100 hover:border-gemma-green text-left flex items-center justify-between group bg-white shadow-sm transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gemma-green/10 flex items-center justify-center text-lg flex-shrink-0">💡</div>
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-bold text-charcoal">Gemma 4 Launch Hub</h4>
+                      <p className="text-xs text-slate-400">Kozhikode · Open to all</p>
+                    </div>
                   </div>
+                  <span className="text-xs font-bold text-gemma-green group-hover:translate-x-0.5 transition-transform flex-shrink-0">Open →</span>
+                </button>
+              </div>
+
+              {/* User badge */}
+              <div className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gemma-blue to-gemma-green flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  {email.charAt(0).toUpperCase()}
                 </div>
-                <span className="text-xs font-bold text-gemma-green group-hover:translate-x-0.5 transition-transform flex-shrink-0">Open →</span>
-              </button>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-charcoal truncate">{email}</p>
+                  <p className="text-[10px] text-slate-400">{isMaster ? '👑 Master Admin' : 'Organizer'}</p>
+                </div>
+              </div>
+
+              {/* Events list */}
+              <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-lg space-y-4">
+                <h3 className="font-display font-bold text-charcoal text-sm flex items-center gap-2">
+                  <span>📅</span> Your Events
+                  {loading && <div className="w-3.5 h-3.5 border-2 border-gemma-blue border-t-transparent rounded-full animate-spin ml-1" />}
+                </h3>
+                {events.length === 0 && !loading ? (
+                  <div className="flex flex-col items-center py-8 text-center border-2 border-dashed border-slate-100 rounded-2xl">
+                    <span className="text-2xl mb-2">💡</span>
+                    <p className="text-xs text-slate-500 font-semibold">No events yet</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Create one on the right →</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {events.map((evt) => (
+                      <div
+                        key={evt.slug}
+                        className="p-3.5 rounded-2xl border border-slate-100 hover:border-gemma-blue bg-slate-50 flex items-center justify-between group transition-all"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-bold text-charcoal truncate">{evt.eventName || 'Unnamed Event'}</p>
+                          <span className="text-[10px] font-semibold text-gemma-blue">/e/{evt.slug}</span>
+                        </div>
+                        <button
+                          onClick={() => handleGoToEvent(evt.slug)}
+                          className="flex-shrink-0 text-xs font-bold text-white bg-gemma-blue px-3 py-1.5 rounded-xl shadow-sm transition-all active:scale-95"
+                        >
+                          Edit ⚙️
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* ── Logged-in Panel ── */}
-            {isLoggedIn && (
-              <div className="space-y-5 animate-[fadeIn_0.5s_ease-out]">
-                {/* User badge */}
-                <div className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gemma-blue to-gemma-green flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                    {email.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-charcoal truncate">{email}</p>
-                    <p className="text-[10px] text-slate-400">{isMaster ? '👑 Master Admin' : 'Organizer'}</p>
-                  </div>
-                </div>
-
-                {/* Events list */}
-                <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-lg space-y-4">
-                  <h3 className="font-display font-bold text-charcoal text-sm flex items-center gap-2">
-                    <span>📅</span> Your Events
-                    {loading && <div className="w-3.5 h-3.5 border-2 border-gemma-blue border-t-transparent rounded-full animate-spin ml-1" />}
+            {/* RIGHT: Create New Event — sticky on desktop */}
+            <div>
+              <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xl space-y-4 lg:sticky lg:top-24">
+                <div>
+                  <h3 className="font-display font-bold text-charcoal text-base flex items-center gap-2 mb-1">
+                    <span>🆕</span> Create New Event
                   </h3>
-                  {events.length === 0 && !loading ? (
-                    <div className="flex flex-col items-center py-8 text-center border-2 border-dashed border-slate-100 rounded-2xl">
-                      <span className="text-2xl mb-2">💡</span>
-                      <p className="text-xs text-slate-500 font-semibold">No events yet</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Create one below</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {events.map((evt) => (
-                        <div
-                          key={evt.slug}
-                          className="p-3.5 rounded-2xl border border-slate-100 hover:border-gemma-blue bg-slate-50 flex items-center justify-between group transition-all"
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-bold text-charcoal truncate">{evt.eventName || 'Unnamed Event'}</p>
-                            <span className="text-[10px] font-semibold text-gemma-blue">/e/{evt.slug}</span>
-                          </div>
-                          <button
-                            onClick={() => handleGoToEvent(evt.slug)}
-                            className="flex-shrink-0 text-xs font-bold text-white bg-gemma-blue px-3 py-1.5 rounded-xl shadow-sm transition-all active:scale-95"
-                          >
-                            Edit ⚙️
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <p className="text-xs text-slate-400">Set up a new event workspace with a unique slug.</p>
                 </div>
+                <form onSubmit={handleCreateEvent} className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Event slug (e.g. my-event-2026)"
+                    value={newSlug}
+                    onChange={(e) => setNewSlug(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Event display name (optional)"
+                    value={newEventName}
+                    onChange={(e) => setNewEventName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
+                  />
+                  {createError && <p className="text-xs text-red-500 font-semibold bg-red-50 px-3 py-2 rounded-lg">{createError}</p>}
+                  <button
+                    type="submit"
+                    disabled={createLoading}
+                    className="w-full py-3.5 bg-gradient-to-r from-gemma-blue to-gemma-green text-white font-bold rounded-xl text-sm transition-all hover:brightness-105 active:scale-[0.98] shadow-md cursor-pointer disabled:opacity-50"
+                  >
+                    {createLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                        Creating…
+                      </span>
+                    ) : 'Create & Open Event →'}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
 
-                {/* Create New Event */}
-                <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-lg space-y-4">
-                  <h3 className="font-display font-bold text-charcoal text-sm flex items-center gap-2">
-                    <span>🆕</span> New Event
-                  </h3>
-                  <form onSubmit={handleCreateEvent} className="space-y-3">
-                    <input
-                      type="text"
-                      placeholder="Event slug (e.g. my-event-2026)"
-                      value={newSlug}
-                      onChange={(e) => setNewSlug(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
-                      required
-                    />
-                    <input
-                      type="text"
-                      placeholder="Event name (optional)"
-                      value={newEventName}
-                      onChange={(e) => setNewEventName(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
-                    />
-                    {createError && <p className="text-xs text-red-500 font-semibold">{createError}</p>}
+        ) : (
+          /* ── NOT LOGGED IN: features left | auth card right ── */
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-6 lg:gap-10 items-start animate-[fadeIn_0.55s_ease-out]">
+
+            {/* LEFT: public events + feature highlights */}
+            <div className="space-y-5">
+              <div className="bg-white/80 backdrop-blur rounded-3xl p-5 border border-slate-100 shadow-lg space-y-3">
+                <h3 className="font-display font-bold text-charcoal text-sm flex items-center gap-2">
+                  <span>🌐</span> Public Events
+                </h3>
+                <button
+                  onClick={() => navigate('/events/gemma4-kozhikode')}
+                  className="w-full p-4 rounded-2xl border border-slate-100 hover:border-gemma-green text-left flex items-center justify-between group bg-white shadow-sm transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gemma-green/10 flex items-center justify-center text-lg flex-shrink-0">💡</div>
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-bold text-charcoal">Gemma 4 Launch Hub</h4>
+                      <p className="text-xs text-slate-400">Kozhikode · Open to all</p>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-gemma-green group-hover:translate-x-0.5 transition-transform flex-shrink-0">Open →</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { icon: '🎨', title: 'Custom Templates', desc: 'Brand-matched poster designs per event' },
+                  { icon: '🤖', title: 'AI BG Removal', desc: 'Auto-remove photo backgrounds instantly' },
+                  { icon: '⚡', title: 'Instant Download', desc: 'Generate & download in seconds' },
+                  { icon: '📱', title: 'Share Ready', desc: 'Perfect for WhatsApp & Instagram' },
+                ].map((f) => (
+                  <div key={f.title} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                    <div className="text-xl mb-2">{f.icon}</div>
+                    <p className="text-xs font-bold text-charcoal">{f.title}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed">{f.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* RIGHT: Sign In / Register card — sticky on desktop */}
+            <div id="access-card" className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden lg:sticky lg:top-24">
+              <div className="flex border-b border-slate-100">
+                <button
+                  onClick={() => { setActiveTab('login'); setLoginError(''); }}
+                  className={`flex-1 py-4 text-sm font-bold transition-all ${
+                    activeTab === 'login'
+                      ? 'text-gemma-blue border-b-2 border-gemma-blue bg-gemma-blue/4'
+                      : 'text-slate-400 hover:text-slate-600'
+                  }`}
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => { setActiveTab('register'); setRegError(''); }}
+                  className={`flex-1 py-4 text-sm font-bold transition-all ${
+                    activeTab === 'register'
+                      ? 'text-gemma-green border-b-2 border-gemma-green bg-gemma-green/4'
+                      : 'text-slate-400 hover:text-slate-600'
+                  }`}
+                >
+                  Register
+                </button>
+              </div>
+
+              <div className="p-6">
+                {activeTab === 'login' ? (
+                  <form onSubmit={handleLoginSubmit} className="space-y-4">
+                    <p className="text-xs text-slate-400">Sign in to manage your events and templates.</p>
+                    <div className="space-y-3">
+                      <input
+                        id="login-email"
+                        type="text"
+                        placeholder="Email or username"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
+                        autoComplete="username"
+                        required
+                      />
+                      <input
+                        id="login-password"
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
+                        autoComplete="current-password"
+                        required
+                      />
+                    </div>
+                    {loginError && (
+                      <p className="text-xs text-red-500 font-semibold bg-red-50 px-3 py-2 rounded-lg">{loginError}</p>
+                    )}
                     <button
                       type="submit"
-                      disabled={createLoading}
-                      className="w-full py-3 bg-gradient-to-r from-gemma-blue to-gemma-green text-white font-bold rounded-xl text-sm transition-all hover:brightness-105 active:scale-[0.98] shadow-md cursor-pointer disabled:opacity-50"
+                      disabled={loading}
+                      className="w-full py-3.5 bg-gradient-to-r from-gemma-blue to-gemma-green text-white font-bold rounded-xl text-sm transition-all hover:brightness-105 active:scale-[0.98] shadow-md cursor-pointer disabled:opacity-50"
                     >
-                      {createLoading ? 'Creating…' : 'Create & Open Event'}
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                          Signing in…
+                        </span>
+                      ) : 'Sign In →'}
                     </button>
+                    <p className="text-center text-[11px] text-slate-400">
+                      New here?{' '}
+                      <button type="button" onClick={() => setActiveTab('register')} className="text-gemma-green font-bold hover:underline">
+                        Create an account
+                      </button>
+                    </p>
                   </form>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ── RIGHT: Auth Card OR placeholder when logged in ── */}
-          <div>
-            {!isLoggedIn && (
-              /* ── Auth Card (Sign In / Register) ── */
-              <div id="access-card" className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden animate-[fadeIn_0.6s_ease-out]">
-                {/* Toggle tabs */}
-                <div className="flex border-b border-slate-100">
-                  <button
-                    onClick={() => { setActiveTab('login'); setLoginError(''); }}
-                    className={`flex-1 py-4 text-sm font-bold transition-all ${
-                      activeTab === 'login'
-                        ? 'text-gemma-blue border-b-2 border-gemma-blue bg-gemma-blue/4'
-                        : 'text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => { setActiveTab('register'); setRegError(''); }}
-                    className={`flex-1 py-4 text-sm font-bold transition-all ${
-                      activeTab === 'register'
-                        ? 'text-gemma-green border-b-2 border-gemma-green bg-gemma-green/4'
-                        : 'text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    Register
-                  </button>
-                </div>
-
-                <div className="p-6">
-                  {activeTab === 'login' ? (
-                    /* ── Sign In Form ── */
-                    <form onSubmit={handleLoginSubmit} className="space-y-4">
-                      <p className="text-xs text-slate-400 mb-4">Sign in to manage your events and templates.</p>
-                      <div className="space-y-3">
+                ) : (
+                  <form onSubmit={handleRegisterSubmit} className="space-y-4">
+                    <p className="text-xs text-slate-400">Create your account and claim your event slug.</p>
+                    <div className="space-y-3">
+                      <input
+                        id="reg-email"
+                        type="email"
+                        placeholder="Your email"
+                        value={regEmail}
+                        onChange={(e) => setRegEmail(e.target.value)}
+                        className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-green focus:outline-none text-sm transition-colors"
+                        autoComplete="email"
+                        required
+                      />
+                      <input
+                        id="reg-password"
+                        type="password"
+                        placeholder="Create a password"
+                        value={regPassword}
+                        onChange={(e) => setRegPassword(e.target.value)}
+                        className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-green focus:outline-none text-sm transition-colors"
+                        autoComplete="new-password"
+                        required
+                      />
+                      <div className="relative">
                         <input
-                          id="login-email"
+                          id="reg-event-slug"
                           type="text"
-                          placeholder="Email or username"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
-                          autoComplete="username"
+                          placeholder="Event slug (e.g. my-event-2026)"
+                          value={regEventSlug}
+                          onChange={(e) => setRegEventSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                          className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-green focus:outline-none text-sm transition-colors"
                           required
                         />
-                        <input
-                          id="login-password"
-                          type="password"
-                          placeholder="Password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
-                          autoComplete="current-password"
-                          required
-                        />
+                        {regEventSlug && (
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gemma-green font-bold">/e/{regEventSlug}</span>
+                        )}
                       </div>
-                      {loginError && (
-                        <p className="text-xs text-red-500 font-semibold bg-red-50 px-3 py-2 rounded-lg">{loginError}</p>
-                      )}
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-3.5 bg-gradient-to-r from-gemma-blue to-gemma-green text-white font-bold rounded-xl text-sm transition-all hover:brightness-105 active:scale-[0.98] shadow-md cursor-pointer disabled:opacity-50"
-                      >
-                        {loading ? (
-                          <span className="flex items-center justify-center gap-2">
-                            <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                            Signing in…
-                          </span>
-                        ) : 'Sign In →'}
+                      <input
+                        id="reg-event-name"
+                        type="text"
+                        placeholder="Event display name (optional)"
+                        value={regEventName}
+                        onChange={(e) => setRegEventName(e.target.value)}
+                        className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-green focus:outline-none text-sm transition-colors"
+                      />
+                    </div>
+                    {regError && (
+                      <p className="text-xs text-red-500 font-semibold bg-red-50 px-3 py-2 rounded-lg">{regError}</p>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={regLoading}
+                      className="w-full py-3.5 bg-gradient-to-r from-gemma-green to-gemma-blue text-white font-bold rounded-xl text-sm transition-all hover:brightness-105 active:scale-[0.98] shadow-md cursor-pointer disabled:opacity-50"
+                    >
+                      {regLoading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                          Creating account…
+                        </span>
+                      ) : 'Register & Get Started →'}
+                    </button>
+                    <p className="text-center text-[11px] text-slate-400">
+                      Already have an account?{' '}
+                      <button type="button" onClick={() => setActiveTab('login')} className="text-gemma-blue font-bold hover:underline">
+                        Sign in
                       </button>
-                      <p className="text-center text-[11px] text-slate-400">
-                        New here?{' '}
-                        <button type="button" onClick={() => setActiveTab('register')} className="text-gemma-green font-bold hover:underline">
-                          Create an account
-                        </button>
-                      </p>
-                    </form>
-                  ) : (
-                    /* ── Register Form ── */
-                    <form onSubmit={handleRegisterSubmit} className="space-y-4">
-                      <p className="text-xs text-slate-400 mb-4">Create your account and claim your first event slug.</p>
-                      <div className="space-y-3">
-                        <input
-                          id="reg-email"
-                          type="email"
-                          placeholder="Your email"
-                          value={regEmail}
-                          onChange={(e) => setRegEmail(e.target.value)}
-                          className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-green focus:outline-none text-sm transition-colors"
-                          autoComplete="email"
-                          required
-                        />
-                        <input
-                          id="reg-password"
-                          type="password"
-                          placeholder="Create a password"
-                          value={regPassword}
-                          onChange={(e) => setRegPassword(e.target.value)}
-                          className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-green focus:outline-none text-sm transition-colors"
-                          autoComplete="new-password"
-                          required
-                        />
-                        <div className="relative">
-                          <input
-                            id="reg-event-slug"
-                            type="text"
-                            placeholder="Event slug (e.g. my-event-2026)"
-                            value={regEventSlug}
-                            onChange={(e) => setRegEventSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
-                            className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-green focus:outline-none text-sm transition-colors"
-                            required
-                          />
-                          {regEventSlug && (
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gemma-green font-bold">/e/{regEventSlug}</span>
-                          )}
-                        </div>
-                        <input
-                          id="reg-event-name"
-                          type="text"
-                          placeholder="Event display name (optional)"
-                          value={regEventName}
-                          onChange={(e) => setRegEventName(e.target.value)}
-                          className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-green focus:outline-none text-sm transition-colors"
-                        />
-                      </div>
-                      {regError && (
-                        <p className="text-xs text-red-500 font-semibold bg-red-50 px-3 py-2 rounded-lg">{regError}</p>
-                      )}
-                      <button
-                        type="submit"
-                        disabled={regLoading}
-                        className="w-full py-3.5 bg-gradient-to-r from-gemma-green to-gemma-blue text-white font-bold rounded-xl text-sm transition-all hover:brightness-105 active:scale-[0.98] shadow-md cursor-pointer disabled:opacity-50"
-                      >
-                        {regLoading ? (
-                          <span className="flex items-center justify-center gap-2">
-                            <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                            Creating account…
-                          </span>
-                        ) : 'Register & Get Started →'}
-                      </button>
-                      <p className="text-center text-[11px] text-slate-400">
-                        Already have an account?{' '}
-                        <button type="button" onClick={() => setActiveTab('login')} className="text-gemma-blue font-bold hover:underline">
-                          Sign in
-                        </button>
-                      </p>
-                    </form>
-                  )}
-                </div>
+                    </p>
+                  </form>
+                )}
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-100 py-5 text-center bg-white/40">
-        <div className="flex items-center justify-center gap-2 mb-1">
-          <img src="/logo.png" alt="" className="w-5 h-5 rounded-md object-cover" />
-          <span className="text-xs font-bold text-charcoal">Poster Gen</span>
+      <footer className="border-t border-slate-100 py-5 bg-white/40">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="" className="w-5 h-5 rounded-md object-cover" />
+            <span className="text-xs font-bold text-charcoal">Poster Gen</span>
+          </div>
+          <p className="text-[10px] text-slate-400">Built with AI · µLearn Dev Community</p>
         </div>
-        <p className="text-[10px] text-slate-400">Built with AI · µLearn Dev Community</p>
       </footer>
     </div>
   );

@@ -54,6 +54,40 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
   return yy;
 }
 
+// ── Photo border helper ─────────────────────────────────────────────────────
+
+function drawPhotoBorder(ctx, config, photoCX, photoCY, photoW, photoH, photoShape) {
+  if (!config?.photoBorderEnabled) return;
+  const bw = config.photoBorderWidth ?? 8;
+  const bType = config.photoBorderType || 'solid';
+
+  ctx.save();
+  ctx.lineWidth = bw;
+  ctx.setLineDash([]);  // always solid stroke (no dash)
+
+  if (bType === 'gradient') {
+    const g = ctx.createLinearGradient(
+      photoCX - photoW / 2, photoCY - photoH / 2,
+      photoCX + photoW / 2, photoCY + photoH / 2
+    );
+    g.addColorStop(0, config.photoBorderGradientStart || '#4285F4');
+    g.addColorStop(1, config.photoBorderGradientEnd   || '#34A853');
+    ctx.strokeStyle = g;
+  } else {
+    ctx.strokeStyle = config.photoBorderColor || '#4285F4';
+  }
+
+  ctx.beginPath();
+  if (photoShape === 'circle') {
+    ctx.ellipse(photoCX, photoCY, photoW / 2, photoH / 2, 0, 0, Math.PI * 2);
+  } else {
+    const radius = Math.round(Math.min(photoW, photoH) * 0.05);
+    roundRect(ctx, photoCX - photoW / 2, photoCY - photoH / 2, photoW, photoH, radius);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
 // ── Main draw function ────────────────────────────────────────────────────────
 
 export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER_W, canvasH = POSTER_H }) {
@@ -103,6 +137,8 @@ export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER
       const sh = ih * scale;
       ctx.drawImage(userImg, -sw / 2, -sh / 2, sw, sh);
       ctx.restore();
+      // Draw configurable border over photo
+      drawPhotoBorder(ctx, config, photoCX, photoCY, photoW, photoH, photoShape);
     } else {
       // Guide marker outline (dashed border) so organizer knows where the photo goes
       // This helper text/guide automatically hides after user uploads a photo
@@ -237,17 +273,21 @@ export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER
       ctx.drawImage(userImg, -sw / 2, -sh / 2, sw, sh);
       ctx.restore();
 
-      // Photo ring overlay
-      ctx.save();
-      ctx.beginPath();
-      ctx.ellipse(photoCX, photoCY, photoW / 2, photoH / 2, 0, 0, Math.PI * 2);
-      const photoRingGrad = ctx.createLinearGradient(photoCX - photoW / 2, photoCY - photoH / 2, photoCX + photoW / 2, photoCY + photoH / 2);
-      photoRingGrad.addColorStop(0, 'rgba(66,133,244,0.6)');
-      photoRingGrad.addColorStop(1, 'rgba(52,168,83,0.6)');
-      ctx.strokeStyle = photoRingGrad;
-      ctx.lineWidth = 5;
-      ctx.stroke();
-      ctx.restore();
+      // Photo ring overlay (default blueprint style) — skip if organizer set a custom border
+      if (!config?.photoBorderEnabled) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(photoCX, photoCY, photoW / 2, photoH / 2, 0, 0, Math.PI * 2);
+        const photoRingGrad = ctx.createLinearGradient(photoCX - photoW / 2, photoCY - photoH / 2, photoCX + photoW / 2, photoCY + photoH / 2);
+        photoRingGrad.addColorStop(0, 'rgba(66,133,244,0.6)');
+        photoRingGrad.addColorStop(1, 'rgba(52,168,83,0.6)');
+        ctx.strokeStyle = photoRingGrad;
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        ctx.restore();
+      }
+      // Configurable border
+      drawPhotoBorder(ctx, config, photoCX, photoCY, photoW, photoH, photoShape);
     } else {
       // Placeholder person silhouette (ellipse)
       ctx.save();
@@ -315,13 +355,17 @@ export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER
       ctx.drawImage(userImg, -sw / 2, -sh / 2, sw, sh);
       ctx.restore();
 
-      // Photo square outline overlay
-      ctx.save();
-      ctx.strokeStyle = '#34A853';
-      ctx.lineWidth = 5;
-      roundRect(ctx, xLeft, yTop, photoW, photoH, radius);
-      ctx.stroke();
-      ctx.restore();
+      // Photo square outline overlay (default blueprint style) — skip if custom border is on
+      if (!config?.photoBorderEnabled) {
+        ctx.save();
+        ctx.strokeStyle = '#34A853';
+        ctx.lineWidth = 5;
+        roundRect(ctx, xLeft, yTop, photoW, photoH, radius);
+        ctx.stroke();
+        ctx.restore();
+      }
+      // Configurable border
+      drawPhotoBorder(ctx, config, photoCX, photoCY, photoW, photoH, photoShape);
     } else {
       // Placeholder person silhouette (square)
       ctx.save();

@@ -676,6 +676,192 @@ export default function AdminPanel({
                   </div>
                 </div>
 
+                {/* ── Photo Border ── */}
+                <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                      <span>🖼️</span> Photo Border
+                    </span>
+                    {/* Toggle */}
+                    <button
+                      type="button"
+                      onClick={() => onUpdateConfig({ photoBorderEnabled: !config.photoBorderEnabled })}
+                      className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${
+                        config.photoBorderEnabled ? 'bg-[#4285F4]' : 'bg-slate-200'
+                      }`}
+                    >
+                      <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+                        config.photoBorderEnabled ? 'translate-x-5' : 'translate-x-0'
+                      }`} />
+                    </button>
+                  </div>
+
+                  {config.photoBorderEnabled && (
+                    <div className="space-y-4">
+                      {/* Border Width */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="font-semibold text-slate-600">Border Width</span>
+                          <span className="font-semibold text-slate-500">{config.photoBorderWidth ?? 8} px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="2"
+                          max="40"
+                          step="1"
+                          value={config.photoBorderWidth ?? 8}
+                          onChange={(e) => onUpdateConfig({ photoBorderWidth: parseInt(e.target.value) })}
+                          className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#4285F4]"
+                        />
+                        <div className="flex justify-between text-[10px] text-slate-400">
+                          <span>Thin (2px)</span>
+                          <span>Default (8px)</span>
+                          <span>Thick (40px)</span>
+                        </div>
+                      </div>
+
+                      {/* Border Type: Solid vs Gradient */}
+                      <div className="space-y-1">
+                        <span className="text-xs font-semibold text-slate-600">Border Style</span>
+                        <div className="grid grid-cols-2 gap-2 mt-1">
+                          <button
+                            type="button"
+                            onClick={() => onUpdateConfig({ photoBorderType: 'solid' })}
+                            className={`py-2.5 text-xs font-bold rounded-xl border-2 transition-all ${
+                              (!config.photoBorderType || config.photoBorderType === 'solid')
+                                ? 'border-[#4285F4] bg-[#4285F4]/8 text-[#4285F4]'
+                                : 'border-slate-200 text-slate-500 hover:border-slate-300'
+                            }`}
+                          >
+                            ⬤ Solid
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onUpdateConfig({ photoBorderType: 'gradient' })}
+                            className={`py-2.5 text-xs font-bold rounded-xl border-2 transition-all ${
+                              config.photoBorderType === 'gradient'
+                                ? 'border-[#34A853] bg-[#34A853]/8 text-[#34A853]'
+                                : 'border-slate-200 text-slate-500 hover:border-slate-300'
+                            }`}
+                          >
+                            🌈 Gradient
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Solid color picker */}
+                      {(!config.photoBorderType || config.photoBorderType === 'solid') && (
+                        <div className="space-y-2">
+                          <span className="text-xs font-semibold text-slate-600">Border Color</span>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="color"
+                              value={config.photoBorderColor ?? '#4285F4'}
+                              onChange={(e) => onUpdateConfig({ photoBorderColor: e.target.value })}
+                              className="w-10 h-10 rounded-xl border-2 border-slate-200 cursor-pointer p-0.5"
+                            />
+                            <div className="flex gap-2 flex-wrap">
+                              {['#4285F4','#34A853','#FBBC04','#EA4335','#ffffff','#000000','#8B5CF6','#F472B6','#06B6D4','#F97316'].map(c => (
+                                <button
+                                  key={c}
+                                  type="button"
+                                  onClick={() => onUpdateConfig({ photoBorderColor: c })}
+                                  title={c}
+                                  className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${
+                                    config.photoBorderColor === c ? 'border-slate-700 scale-110' : 'border-white shadow'
+                                  }`}
+                                  style={{ backgroundColor: c }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <input
+                            type="text"
+                            value={config.photoBorderColor ?? '#4285F4'}
+                            onChange={(e) => onUpdateConfig({ photoBorderColor: e.target.value })}
+                            placeholder="#4285F4"
+                            className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono focus:border-[#4285F4] focus:outline-none"
+                          />
+                        </div>
+                      )}
+
+                      {/* Gradient pickers */}
+                      {config.photoBorderType === 'gradient' && (
+                        <div className="space-y-3">
+                          <span className="text-xs font-semibold text-slate-600">Gradient Presets</span>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { label: 'Google', c1: '#4285F4', c2: '#34A853' },
+                              { label: 'Sunset', c1: '#F97316', c2: '#EA4335' },
+                              { label: 'Purple', c1: '#8B5CF6', c2: '#F472B6' },
+                              { label: 'Ocean', c1: '#06B6D4', c2: '#4285F4' },
+                              { label: 'Gold',   c1: '#FBBC04', c2: '#F97316' },
+                              { label: 'Forest', c1: '#34A853', c2: '#06B6D4' },
+                            ].map(({ label, c1, c2 }) => (
+                              <button
+                                key={label}
+                                type="button"
+                                onClick={() => onUpdateConfig({ photoBorderGradientStart: c1, photoBorderGradientEnd: c2 })}
+                                className="rounded-xl h-8 border-2 border-white shadow text-[10px] font-bold text-white transition-transform hover:scale-105"
+                                style={{ background: `linear-gradient(135deg, ${c1}, ${c2})` }}
+                                title={label}
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+
+                          <span className="text-xs font-semibold text-slate-600 block">Custom Gradient Colors</span>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <span className="text-[10px] text-slate-400 font-semibold">Start Color</span>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="color"
+                                  value={config.photoBorderGradientStart ?? '#4285F4'}
+                                  onChange={(e) => onUpdateConfig({ photoBorderGradientStart: e.target.value })}
+                                  className="w-9 h-9 rounded-lg border border-slate-200 cursor-pointer p-0.5"
+                                />
+                                <input
+                                  type="text"
+                                  value={config.photoBorderGradientStart ?? '#4285F4'}
+                                  onChange={(e) => onUpdateConfig({ photoBorderGradientStart: e.target.value })}
+                                  className="flex-1 px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-mono focus:border-[#4285F4] focus:outline-none"
+                                />
+                              </div>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-[10px] text-slate-400 font-semibold">End Color</span>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="color"
+                                  value={config.photoBorderGradientEnd ?? '#34A853'}
+                                  onChange={(e) => onUpdateConfig({ photoBorderGradientEnd: e.target.value })}
+                                  className="w-9 h-9 rounded-lg border border-slate-200 cursor-pointer p-0.5"
+                                />
+                                <input
+                                  type="text"
+                                  value={config.photoBorderGradientEnd ?? '#34A853'}
+                                  onChange={(e) => onUpdateConfig({ photoBorderGradientEnd: e.target.value })}
+                                  className="flex-1 px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-mono focus:border-[#34A853] focus:outline-none"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Live gradient preview strip */}
+                          <div
+                            className="h-6 rounded-xl border border-slate-200 shadow-inner"
+                            style={{
+                              background: `linear-gradient(135deg, ${config.photoBorderGradientStart ?? '#4285F4'}, ${config.photoBorderGradientEnd ?? '#34A853'})`
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 {/* Reset Photo Position Button */}
                 <button
                   type="button"
@@ -687,6 +873,7 @@ export default function AdminPanel({
                   ↩️ Reset Photo Placement to Defaults
                 </button>
               </section>
+
 
               <Divider />
 

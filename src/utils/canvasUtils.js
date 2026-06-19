@@ -88,6 +88,37 @@ function drawPhotoBorder(ctx, config, photoCX, photoCY, photoW, photoH, photoSha
   ctx.restore();
 }
 
+// ── Photo background fill helper ────────────────────────────────────────────
+
+function drawPhotoBackground(ctx, config, photoCX, photoCY, photoW, photoH, photoShape) {
+  if (!config?.photoBackgroundEnabled) return;
+  const bType = config.photoBackgroundType || 'solid';
+  const radius = Math.round(Math.min(photoW, photoH) * 0.05);
+
+  ctx.save();
+
+  if (bType === 'gradient') {
+    const g = ctx.createLinearGradient(
+      photoCX - photoW / 2, photoCY - photoH / 2,
+      photoCX + photoW / 2, photoCY + photoH / 2
+    );
+    g.addColorStop(0, config.photoBackgroundGradientStart || '#4285F4');
+    g.addColorStop(1, config.photoBackgroundGradientEnd   || '#34A853');
+    ctx.fillStyle = g;
+  } else {
+    ctx.fillStyle = config.photoBackgroundColor || '#E8F0FE';
+  }
+
+  ctx.beginPath();
+  if (photoShape === 'circle') {
+    ctx.ellipse(photoCX, photoCY, photoW / 2, photoH / 2, 0, 0, Math.PI * 2);
+  } else {
+    roundRect(ctx, photoCX - photoW / 2, photoCY - photoH / 2, photoW, photoH, radius);
+  }
+  ctx.fill();
+  ctx.restore();
+}
+
 // ── Main draw function ────────────────────────────────────────────────────────
 
 export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER_W, canvasH = POSTER_H }) {
@@ -112,7 +143,9 @@ export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER
     // 1. Draw the uploaded template as the background
     ctx.drawImage(templateImg, 0, 0, w, h);
 
-    // 2. Draw user photo (no border, no dashed ring, just photo itself!)
+    // 2. Draw photo background fill (if enabled) then user photo
+    drawPhotoBackground(ctx, config, photoCX, photoCY, photoW, photoH, photoShape);
+
     if (userImg) {
       ctx.save();
       // Set up crop shape path
@@ -253,8 +286,10 @@ export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER
     ctx.fill();
     ctx.restore();
 
-    // User photo (clipped to ellipse)
+    // User photo (clipped to ellipse) — with optional background fill behind it
     if (userImg) {
+      // Draw background behind the photo
+      drawPhotoBackground(ctx, config, photoCX, photoCY, photoW, photoH, photoShape);
       ctx.save();
       ctx.beginPath();
       ctx.ellipse(photoCX, photoCY, photoW / 2, photoH / 2, 0, 0, Math.PI * 2);
@@ -336,8 +371,9 @@ export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER
     ctx.fill();
     ctx.restore();
 
-    // User photo (clipped to rounded square)
+    // User photo (clipped to rounded square) — with optional background fill
     if (userImg) {
+      drawPhotoBackground(ctx, config, photoCX, photoCY, photoW, photoH, photoShape);
       ctx.save();
       roundRect(ctx, xLeft, yTop, photoW, photoH, radius);
       ctx.clip();

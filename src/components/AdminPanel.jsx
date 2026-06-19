@@ -676,7 +676,166 @@ export default function AdminPanel({
                   </div>
                 </div>
 
+                {/* ── Photo Background Fill ── */}
+                <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                      <span>🎨</span> Photo Background
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => onUpdateConfig({ photoBackgroundEnabled: !config.photoBackgroundEnabled })}
+                      className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${
+                        config.photoBackgroundEnabled ? 'bg-[#34A853]' : 'bg-slate-200'
+                      }`}
+                    >
+                      <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+                        config.photoBackgroundEnabled ? 'translate-x-5' : 'translate-x-0'
+                      }`} />
+                    </button>
+                  </div>
+
+                  {config.photoBackgroundEnabled && (
+                    <div className="space-y-4">
+                      {/* Style: Solid vs Gradient */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => onUpdateConfig({ photoBackgroundType: 'solid' })}
+                          className={`py-2.5 text-xs font-bold rounded-xl border-2 transition-all ${
+                            (!config.photoBackgroundType || config.photoBackgroundType === 'solid')
+                              ? 'border-[#34A853] bg-[#34A853]/8 text-[#34A853]'
+                              : 'border-slate-200 text-slate-500 hover:border-slate-300'
+                          }`}
+                        >
+                          ⬛ Solid
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onUpdateConfig({ photoBackgroundType: 'gradient' })}
+                          className={`py-2.5 text-xs font-bold rounded-xl border-2 transition-all ${
+                            config.photoBackgroundType === 'gradient'
+                              ? 'border-[#4285F4] bg-[#4285F4]/8 text-[#4285F4]'
+                              : 'border-slate-200 text-slate-500 hover:border-slate-300'
+                          }`}
+                        >
+                          🌈 Gradient
+                        </button>
+                      </div>
+
+                      {/* Solid Color */}
+                      {(!config.photoBackgroundType || config.photoBackgroundType === 'solid') && (
+                        <div className="space-y-2">
+                          <span className="text-xs font-semibold text-slate-600">Background Color</span>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="color"
+                              value={config.photoBackgroundColor ?? '#E8F0FE'}
+                              onChange={(e) => onUpdateConfig({ photoBackgroundColor: e.target.value })}
+                              className="w-10 h-10 rounded-xl border-2 border-slate-200 cursor-pointer p-0.5"
+                            />
+                            <div className="flex gap-2 flex-wrap">
+                              {['#E8F0FE','#E6F4EA','#FFF3E0','#FCE8E6','#ffffff','#000000','#F3E8FF','#FEE2E2','#E0F2FE','#F0FDF4'].map(c => (
+                                <button
+                                  key={c}
+                                  type="button"
+                                  onClick={() => onUpdateConfig({ photoBackgroundColor: c })}
+                                  title={c}
+                                  className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${
+                                    config.photoBackgroundColor === c ? 'border-slate-700 scale-110' : 'border-white shadow'
+                                  }`}
+                                  style={{ backgroundColor: c }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <input
+                            type="text"
+                            value={config.photoBackgroundColor ?? '#E8F0FE'}
+                            onChange={(e) => onUpdateConfig({ photoBackgroundColor: e.target.value })}
+                            placeholder="#E8F0FE"
+                            className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono focus:border-[#34A853] focus:outline-none"
+                          />
+                        </div>
+                      )}
+
+                      {/* Gradient */}
+                      {config.photoBackgroundType === 'gradient' && (
+                        <div className="space-y-3">
+                          <span className="text-xs font-semibold text-slate-600">Gradient Presets</span>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { label: 'Blue–Green', c1: '#4285F4', c2: '#34A853' },
+                              { label: 'Sunset',     c1: '#F97316', c2: '#EA4335' },
+                              { label: 'Purple',     c1: '#8B5CF6', c2: '#F472B6' },
+                              { label: 'Ocean',      c1: '#06B6D4', c2: '#4285F4' },
+                              { label: 'Gold',       c1: '#FBBC04', c2: '#F97316' },
+                              { label: 'Mint',       c1: '#34A853', c2: '#06B6D4' },
+                            ].map(({ label, c1, c2 }) => (
+                              <button
+                                key={label}
+                                type="button"
+                                onClick={() => onUpdateConfig({ photoBackgroundGradientStart: c1, photoBackgroundGradientEnd: c2 })}
+                                className="rounded-xl h-8 border-2 border-white shadow text-[10px] font-bold text-white transition-transform hover:scale-105"
+                                style={{ background: `linear-gradient(135deg, ${c1}, ${c2})` }}
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <span className="text-[10px] text-slate-400 font-semibold">Start Color</span>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="color"
+                                  value={config.photoBackgroundGradientStart ?? '#4285F4'}
+                                  onChange={(e) => onUpdateConfig({ photoBackgroundGradientStart: e.target.value })}
+                                  className="w-9 h-9 rounded-lg border border-slate-200 cursor-pointer p-0.5"
+                                />
+                                <input
+                                  type="text"
+                                  value={config.photoBackgroundGradientStart ?? '#4285F4'}
+                                  onChange={(e) => onUpdateConfig({ photoBackgroundGradientStart: e.target.value })}
+                                  className="flex-1 px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-mono focus:border-[#4285F4] focus:outline-none"
+                                />
+                              </div>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-[10px] text-slate-400 font-semibold">End Color</span>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="color"
+                                  value={config.photoBackgroundGradientEnd ?? '#34A853'}
+                                  onChange={(e) => onUpdateConfig({ photoBackgroundGradientEnd: e.target.value })}
+                                  className="w-9 h-9 rounded-lg border border-slate-200 cursor-pointer p-0.5"
+                                />
+                                <input
+                                  type="text"
+                                  value={config.photoBackgroundGradientEnd ?? '#34A853'}
+                                  onChange={(e) => onUpdateConfig({ photoBackgroundGradientEnd: e.target.value })}
+                                  className="flex-1 px-2 py-1.5 rounded-lg border border-slate-200 text-[11px] font-mono focus:border-[#34A853] focus:outline-none"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Preview strip */}
+                          <div
+                            className="h-6 rounded-xl border border-slate-200 shadow-inner"
+                            style={{
+                              background: `linear-gradient(135deg, ${config.photoBackgroundGradientStart ?? '#4285F4'}, ${config.photoBackgroundGradientEnd ?? '#34A853'})`
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 {/* ── Photo Border ── */}
+
                 <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">

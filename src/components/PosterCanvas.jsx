@@ -90,9 +90,9 @@ export default function PosterCanvas({ userImg, config, generationId, onDownload
           </div>
         )}
 
-        {/* Canvas — aspect-ratio box so it always fits its column */}
+        {/* Canvas — aspect-ratio box so it always fills its column */}
         <div
-          className="canvas-wrapper w-full rounded-2xl overflow-hidden shadow-xl"
+          className="canvas-wrapper w-full rounded-2xl overflow-hidden shadow-xl relative"
           style={{ aspectRatio: '1080 / 1350' }}
         >
           <canvas
@@ -100,7 +100,7 @@ export default function PosterCanvas({ userImg, config, generationId, onDownload
             width={POSTER_DIMS.w}
             height={POSTER_DIMS.h}
             id="poster-canvas"
-            style={{ width: '100%', height: '100%', display: 'block' }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }}
           />
         </div>
 

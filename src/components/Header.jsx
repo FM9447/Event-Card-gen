@@ -24,18 +24,17 @@ export default function Header({ config, onOrganizerClick }) {
             />
           ) : (
             <div className="flex items-center gap-2.5">
-              {/* Gemma "G" icon */}
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gemma-blue to-gemma-green
-                              flex items-center justify-center shadow-glass">
-                <SparkleIcon size={18} color="white" animate />
-              </div>
+              <img
+                src="/logo.png"
+                alt="Poster Gen Logo"
+                className="w-9 h-9 rounded-xl object-cover shadow-sm"
+              />
               <div>
-                <div className="font-display font-bold text-charcoal text-base leading-tight">
-                   Explore{' '}
-                  <span className="text-gradient">Gemma 4</span>
+                <div className="font-display font-black text-charcoal text-base leading-tight">
+                  <span className="text-gradient">Poster Gen</span>
                 </div>
                 <div className="text-[10px] text-slate-400 font-medium tracking-wide">
-                  Kozhikode · June 21, 2026
+                  Custom Event Posters
                 </div>
               </div>
             </div>

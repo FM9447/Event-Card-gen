@@ -3,7 +3,7 @@ import { fetchConfig, saveConfig, resetConfig as apiResetConfig } from '../servi
 
 const getDefaultConfig = (slug) => ({
   slug,
-  eventName: 'Explore Gemma 4',
+  eventName: 'Poster Gen Event',
   location: 'KOZHIKODE – IOCOD, Sahya Building, Govt. Cyber Park',
   date: 'Sunday, June 21, 2026',
   time: '10:30 AM',

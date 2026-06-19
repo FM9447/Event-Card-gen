@@ -237,7 +237,7 @@ export default function App() {
           </h1>
           <p className="text-slate-500 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
             Upload your photo, let AI remove the background, and download a stunning custom poster for{' '}
-            <strong className="text-charcoal">{config.eventName || 'Explore Gemma 4'}</strong>
+            <strong className="text-charcoal">{config.eventName || 'Poster Gen'}</strong>
           </p>
         </div>
 
@@ -318,7 +318,7 @@ export default function App() {
       <footer className="mt-20 border-t border-slate-100 py-8 text-center bg-white/40 backdrop-blur-sm">
         <div className="flex items-center justify-center gap-2 mb-2">
           <SparkleIcon size={14} color="var(--color-gemma-blue)" animate />
-          <span className="text-sm font-semibold text-charcoal">{config.eventName || 'Explore Gemma 4'}</span>
+          <span className="text-sm font-semibold text-charcoal">{config.eventName || 'Poster Gen'}</span>
           <SparkleIcon size={14} color="var(--color-gemma-green)" animate />
         </div>
         <p className="text-xs text-slate-400">
@@ -581,11 +581,13 @@ function HomePage() {
       <header className="sticky top-0 z-40 w-full bg-white/85 backdrop-blur-md border-b border-slate-100 py-4 px-6 shadow-sm">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gemma-blue to-gemma-green flex items-center justify-center shadow-glass">
-              <SparkleIcon size={18} color="white" animate />
-            </div>
+            <img
+              src="/logo.png"
+              alt="Poster Gen Logo"
+              className="w-9 h-9 rounded-xl object-cover shadow-sm"
+            />
             <div>
-              <span className="font-display font-black text-charcoal text-lg tracking-tight">Gemma 4</span>
+              <span className="font-display font-black text-charcoal text-lg tracking-tight">Poster Gen</span>
               <span className="ml-1.5 text-[10px] bg-gemma-blue/8 text-gemma-blue border border-gemma-blue/20 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Poster Hub</span>
             </div>
           </div>
@@ -620,11 +622,11 @@ function HomePage() {
             <span className="text-[10px] font-bold text-gemma-blue uppercase tracking-widest">Self-Service Custom Poster Creator</span>
           </div>
           <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-charcoal leading-tight">
-            Explore Google <br/>
-            <span className="text-gradient">Gemma 4 Dev Hub</span>
+            Welcome to <br/>
+            <span className="text-gradient">Poster Gen Hub</span>
           </h1>
           <p className="text-slate-500 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
-            Generate stunning custom participation posters for local Google developer community events instantly. Fully powered in-browser.
+            Generate stunning custom participation posters for your local tech and developer community events instantly. Fully powered in-browser.
           </p>
         </div>
 
@@ -805,7 +807,7 @@ function HomePage() {
       </main>
 
       <footer className="border-t border-slate-100 py-6 text-center text-xs text-slate-400 mt-12 bg-white/40">
-        Google Gemma 4 Poster Generator Hub · Built with AI & µLearn Dev Community
+        Poster Gen Hub · Built with AI & µLearn Dev Community
       </footer>
     </div>
   );

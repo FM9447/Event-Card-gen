@@ -9,7 +9,7 @@ const partnerSchema = new mongoose.Schema({
 const eventConfigSchema = new mongoose.Schema(
   {
     slug:            { type: String, required: true, unique: true, index: true },
-    eventName:       { type: String, default: 'Explore Gemma 4' },
+    eventName:       { type: String, default: 'Poster Gen Event' },
     location:        { type: String, default: 'KOZHIKODE – IOCOD, Sahya Building, Govt. Cyber Park' },
     date:            { type: String, default: 'Sunday, June 21, 2026' },
     time:            { type: String, default: '10:30 AM' },

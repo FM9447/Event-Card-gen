@@ -7,6 +7,7 @@ import { connectDB } from './db.js';
 import configRoutes from './routes/config.js';
 import posterRoutes from './routes/poster.js';
 import uploadRoutes from './routes/upload.js';
+import { initKeepAlive } from './cron.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -96,6 +97,9 @@ async function start() {
     console.log(`  ➜  http://localhost:${PORT}`);
     console.log(`  ➜  Health: http://localhost:${PORT}/api/health`);
     console.log('');
+    
+    // Initialize the self-ping keep-alive job
+    initKeepAlive();
   });
 }
 

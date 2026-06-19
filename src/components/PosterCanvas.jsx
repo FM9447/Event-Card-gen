@@ -64,7 +64,7 @@ export default function PosterCanvas({ userImg, config, generationId, onDownload
   return (
     <div className="flex flex-col items-center gap-5 w-full">
       {/* Poster frame with sparkle corners */}
-      <div className="relative group w-full max-w-[480px]">
+      <div className="relative group w-full">
         {/* Corner sparkles */}
         <div className="absolute -top-3 -left-3 z-10 animate-[sparklePulse_2.5s_ease-in-out_infinite]">
           <SparkleIcon size={22} color="#4285F4" />
@@ -90,14 +90,17 @@ export default function PosterCanvas({ userImg, config, generationId, onDownload
           </div>
         )}
 
-        {/* Canvas */}
-        <div className="canvas-wrapper w-full rounded-2xl overflow-hidden">
+        {/* Canvas — aspect-ratio box so it always fits its column */}
+        <div
+          className="canvas-wrapper w-full rounded-2xl overflow-hidden shadow-xl"
+          style={{ aspectRatio: '1080 / 1350' }}
+        >
           <canvas
             ref={canvasRef}
             width={POSTER_DIMS.w}
             height={POSTER_DIMS.h}
             id="poster-canvas"
-            style={{ width: '100%', height: 'auto', display: 'block' }}
+            style={{ width: '100%', height: '100%', display: 'block' }}
           />
         </div>
 
@@ -107,7 +110,7 @@ export default function PosterCanvas({ userImg, config, generationId, onDownload
       </div>
 
       {/* Action buttons row */}
-      <div className="flex flex-col gap-3 w-full max-w-[480px]">
+      <div className="flex flex-col gap-3 w-full">
         {/* Download button */}
         <button
           id="download-poster-btn"

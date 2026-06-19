@@ -62,8 +62,8 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/FM9447/Event-Card-gen.git
-cd Event-Card-gen
+git clone https://github.com/FM9447/Event-Card-gen.git event-poster-gen
+cd event-poster-gen
 ```
 
 ### 2. Install dependencies

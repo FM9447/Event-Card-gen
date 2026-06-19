@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { connectDB } from './db.js';
 import configRoutes from './routes/config.js';
 import posterRoutes from './routes/poster.js';
@@ -31,6 +33,17 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
+// Database connection check middleware
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('Database connection middleware error:', err);
+    res.status(500).json({ ok: false, error: 'Database connection failed' });
+  }
+});
+
 // ── Routes ────────────────────────────────────────────────────────────────────
 
 app.get('/api/health', (_req, res) => {
@@ -46,6 +59,20 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/config', configRoutes);
 app.use('/api/poster', posterRoutes);
 app.use('/api/upload', uploadRoutes);
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ── Serve Frontend Static Files in Production ──────────────────────────────────
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.join(__dirname, '../dist');
+  app.use(express.static(distPath));
+
+  // Serve index.html for any non-API routes (SPA routing)
+  app.get(/^\/(?!api).*/, (req, res) => {
+    res.sendFile(path.resolve(distPath, 'index.html'));
+  });
+}
 
 // 404 fallback
 app.use((_req, res) => {

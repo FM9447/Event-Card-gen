@@ -37,7 +37,7 @@ function PartnerRow({ partner, onUpdate, onRemove, onLogoUpload }) {
   };
 
   return (
-    <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 border border-slate-100 group">
+    <div className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-slate-50 border border-slate-100 group">
       {/* Logo preview */}
       <button
         onClick={() => fileRef.current?.click()}

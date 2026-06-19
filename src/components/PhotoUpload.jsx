@@ -54,8 +54,8 @@ export default function PhotoUpload({ onImageReady, bgRemoveEnabled, onBgRemoveT
               )}
             </div>
             <div className="text-left">
-              <p className="text-sm font-semibold text-charcoal">Photo uploaded ✓</p>
-              <p className="text-xs text-slate-400 mt-0.5">Click or drag to replace</p>
+              <p className="text-sm font-semibold text-charcoal">Photo added ✓</p>
+              <p className="text-xs text-slate-400 mt-0.5">Tap to replace</p>
             </div>
             <div className="ml-auto">
               <SparkleIcon size={20} color="var(--color-gemma-green)" animate />
@@ -73,9 +73,9 @@ export default function PhotoUpload({ onImageReady, bgRemoveEnabled, onBgRemoveT
             </div>
             <div>
               <p className="text-sm font-semibold text-charcoal">
-                {isDragActive ? 'Drop your photo here!' : 'Upload Your Photo'}
+                {isDragActive ? 'Drop it here!' : 'Tap to Upload Photo'}
               </p>
-              <p className="text-xs text-slate-400 mt-1">Drag & drop or click · PNG, JPG, WebP</p>
+              <p className="text-xs text-slate-400 mt-1">Tap to select from your library · PNG, JPG, WebP</p>
             </div>
           </div>
         )}

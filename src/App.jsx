@@ -7,7 +7,7 @@ import PartnersBlock from './components/PartnersBlock';
 import AdminPanel from './components/AdminPanel';
 import SparkleIcon from './components/SparkleIcon';
 import { useEventConfig } from './hooks/useEventConfig';
-import { logPosterGenerated, markPosterDownloaded, verifyConfigCredentials, globalLogin, createEvent } from './services/api';
+import { logPosterGenerated, markPosterDownloaded, globalLogin, createEvent } from './services/api';
 
 function hexToRgba(hex, alpha) {
   if (!hex) return `rgba(255, 255, 255, ${alpha})`;
@@ -168,7 +168,7 @@ export default function App() {
         backgroundImage: `linear-gradient(rgba(248, 249, 250, ${opacityVal}), rgba(248, 249, 250, ${opacityVal})), url(${config.backgroundImageUrl})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
+        backgroundRepeat: 'no-repeat',
       }
     : {};
 
@@ -220,96 +220,75 @@ export default function App() {
       <Header config={config} onOrganizerClick={() => setAdminOpen(true)} />
 
       {/* ── Event Hero ── */}
-      <main className="max-w-7xl mx-auto px-5 sm:px-8 py-10 lg:py-16 relative z-10">
+      <main className="max-w-md mx-auto px-4 py-8 relative z-10">
 
         {/* Page title */}
-        <div className="text-center mb-12 animate-[fadeIn_0.5s_ease-out]">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full
-                          bg-gemma-blue/8 border border-gemma-blue/20 mb-5">
-            <SparkleIcon size={12} color="var(--color-gemma-blue)" animate />
-            <span className="text-xs font-semibold text-gemma-blue tracking-wide">/events/{config.slug}</span>
+        <div className="text-center mb-8 animate-[fadeIn_0.5s_ease-out]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full
+                          bg-gemma-blue/8 border border-gemma-blue/20 mb-4">
+            <SparkleIcon size={10} color="var(--color-gemma-blue)" animate />
+            <span className="text-[10px] font-bold text-gemma-blue tracking-widest uppercase">/events/{config.slug}</span>
             <div className="w-1.5 h-1.5 rounded-full bg-gemma-green animate-pulse" />
           </div>
 
-          <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-charcoal leading-tight mb-4">
-            Generate Your{' '}
-            <span className="text-gradient">Participation</span>
-            <br />
-            <span className="text-gradient">Poster</span>
+          <h1 className="font-display font-black text-3xl text-charcoal leading-tight mb-3">
+            Get Your{' '}
+            <span className="text-gradient">Event Poster</span>
           </h1>
-          <p className="text-slate-500 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
-            Upload your photo, let AI remove the background, and download a stunning custom poster for{' '}
-            <strong className="text-charcoal">{config.eventName || 'Poster Gen'}</strong>
+          <p className="text-slate-500 text-sm leading-relaxed">
+            <strong className="text-charcoal">{config.eventName || 'Poster Gen'}</strong> · Upload your photo
+            {' '}and get a custom poster in seconds.
           </p>
         </div>
 
-        {/* ── Two-column layout ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-12 items-start">
+        {/* ── Single-column mobile layout ── */}
+        <div className="space-y-6 animate-[fadeIn_0.5s_ease-out]">
 
-          {/* ════ LEFT COLUMN — Interactive Showcase ════ */}
-          <div className="space-y-6 animate-[fadeIn_0.6s_ease-out]">
-            {/* Section label */}
-            <div className="flex items-center gap-2">
-              <SparkleIcon size={16} color="var(--color-gemma-blue)" animate />
-              <h2 className="font-display font-bold text-lg text-charcoal">Your Custom Poster</h2>
-            </div>
+          {/* Live canvas preview */}
+          <PosterCanvas
+            userImg={userImgEl}
+            config={config}
+            generationId={generationIdRef.current}
+            onDownload={handleDownload}
+          />
 
-            {/* Live canvas preview */}
-            <PosterCanvas
-              userImg={userImgEl}
-              config={config}
-              generationId={generationIdRef.current}
-              onDownload={handleDownload}
-            />
-
-            {/* ── Generate section ── */}
-            <div className="glass-card rounded-2xl p-6 space-y-1">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gemma-blue to-gemma-green
-                                flex items-center justify-center">
-                  <SparkleIcon size={14} color="white" />
-                </div>
-                <h3 className="font-display font-bold text-charcoal text-base">Generate Your Custom Poster</h3>
+          {/* ── Upload section ── */}
+          <div className="glass-card rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-gemma-blue to-gemma-green
+                              flex items-center justify-center flex-shrink-0">
+                <SparkleIcon size={12} color="white" />
               </div>
-
-              <PhotoUpload
-                onImageReady={handleImageReady}
-                bgRemoveEnabled={bgRemoveEnabled}
-                onBgRemoveToggle={handleBgRemoveToggle}
-                isProcessing={isProcessing}
-              />
+              <h2 className="font-display font-bold text-charcoal text-sm">Upload Your Photo</h2>
             </div>
-
-            {/* Success message */}
-            {successMsg && (
-              <div className="flex items-center gap-3 p-4 rounded-2xl bg-gemma-green/8 border border-gemma-green/20 animate-[fadeIn_0.3s_ease-out]">
-                <SparkleIcon size={18} color="var(--color-gemma-green)" animate />
-                <p className="text-sm font-semibold text-gemma-green">{successMsg}</p>
-              </div>
-            )}
-          </div>
-
-          {/* ════ RIGHT COLUMN — Info & Branding Hub ════ */}
-          <div className="space-y-6 animate-[fadeIn_0.7s_ease-out]">
-            {/* Section label */}
-            <div className="flex items-center gap-2">
-              <SparkleIcon size={16} color="var(--color-gemma-green)" animate />
-              <h2 className="font-display font-bold text-lg text-charcoal">Event Information</h2>
-            </div>
-
-            {/* Building illustration card */}
-            <BuildingCard bannerUrl={config.bannerUrl} />
-
-            {/* Info cards */}
-            <InfoCards config={config} />
-
-            {/* Partners block */}
-            <PartnersBlock
-              partners={config.partners}
-              themePrimary={config.themePrimary}
-              themeSecondary={config.themeSecondary}
+            <PhotoUpload
+              onImageReady={handleImageReady}
+              bgRemoveEnabled={bgRemoveEnabled}
+              onBgRemoveToggle={handleBgRemoveToggle}
+              isProcessing={isProcessing}
             />
           </div>
+
+          {/* Success message */}
+          {successMsg && (
+            <div className="flex items-center gap-3 p-4 rounded-2xl bg-gemma-green/8 border border-gemma-green/20 animate-[fadeIn_0.3s_ease-out]">
+              <SparkleIcon size={18} color="var(--color-gemma-green)" animate />
+              <p className="text-sm font-semibold text-gemma-green">{successMsg}</p>
+            </div>
+          )}
+
+          {/* Event banner */}
+          <BuildingCard bannerUrl={config.bannerUrl} />
+
+          {/* Info cards */}
+          <InfoCards config={config} />
+
+          {/* Partners block */}
+          <PartnersBlock
+            partners={config.partners}
+            themePrimary={config.themePrimary}
+            themeSecondary={config.themeSecondary}
+          />
         </div>
 
         {/* ── How it works ── */}
@@ -318,22 +297,20 @@ export default function App() {
 
       {/* Footer */}
       <footer
-        className="mt-20 border-t py-8 text-center transition-all duration-200"
+        className="mt-12 border-t py-6 text-center transition-all duration-200"
         style={{
           background: 'var(--color-header-bg)',
           color: 'var(--color-header-text)',
           borderColor: 'rgba(226, 232, 240, 0.4)',
         }}
       >
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <SparkleIcon size={14} color="var(--color-gemma-blue)" animate />
-          <span className="text-sm font-semibold">{config.eventName || 'Poster Gen'}</span>
-          <SparkleIcon size={14} color="var(--color-gemma-green)" animate />
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <SparkleIcon size={12} color="var(--color-gemma-blue)" animate />
+          <span className="text-xs font-bold">{config.eventName || 'Poster Gen'}</span>
+          <SparkleIcon size={12} color="var(--color-gemma-green)" animate />
         </div>
-        <p className="text-xs opacity-75">
-          Kozhikode · June 21, 2026 · A community event by{' '}
-          <span className="font-semibold text-gemma-blue">Build with AI</span> &{' '}
-          <span className="font-semibold text-gemma-green">µLearn</span>
+        <p className="text-[10px] opacity-60">
+          Powered by Poster Gen · µLearn Dev Community
         </p>
       </footer>
 
@@ -428,57 +405,57 @@ function HowItWorks({ config }) {
       n: '01',
       color: config.themePrimary || '#4285F4',
       icon: '📸',
-      title: 'Upload Your Photo',
-      desc: 'Drag & drop or browse your device for any portrait or selfie photo.',
+      title: 'Tap to Upload',
+      desc: 'Tap the upload zone and pick any photo from your camera roll.',
     },
     {
       n: '02',
       color: config.themeSecondary || '#34A853',
       icon: '✨',
-      title: 'AI Removes Background',
-      desc: 'Toggle the AI switch to cleanly remove your photo background — all in-browser.',
+      title: 'AI Magic',
+      desc: 'Toggle AI to remove your background — runs fully in-browser.',
     },
     {
       n: '03',
       color: '#FBBC04',
       icon: '🎨',
-      title: 'Live Preview Updates',
-      desc: 'Watch your poster update in real-time on the canvas with the event template.',
+      title: 'Live Preview',
+      desc: 'Your poster updates in real-time with the event template.',
     },
     {
       n: '04',
       color: '#EA4335',
       icon: '⬇️',
-      title: 'Download & Share',
-      desc: 'Download your 1080×1350px poster and share on Instagram, LinkedIn & Twitter.',
+      title: 'Save & Share',
+      desc: 'Download and share on Instagram, LinkedIn & Twitter.',
     },
   ];
 
   return (
-    <section className="mt-20">
-      <div className="text-center mb-10">
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <SparkleIcon size={16} color="var(--color-gemma-blue)" animate />
-          <h2 className="font-display font-bold text-2xl sm:text-3xl text-charcoal">How It Works</h2>
-          <SparkleIcon size={16} color="var(--color-gemma-green)" animate />
+    <section className="mt-10">
+      <div className="text-center mb-6">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <SparkleIcon size={14} color="var(--color-gemma-blue)" animate />
+          <h2 className="font-display font-bold text-xl text-charcoal">How It Works</h2>
+          <SparkleIcon size={14} color="var(--color-gemma-green)" animate />
         </div>
-        <p className="text-sm text-slate-400">Four simple steps to your custom event poster</p>
+        <p className="text-xs text-slate-400">Four quick steps</p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         {steps.map((step, i) => (
           <div
             key={step.n}
-            className="glass-card rounded-2xl p-5 text-center hover:shadow-[0_8px_32px_rgba(66,133,244,0.12)]
-                       transition-all duration-300 hover:-translate-y-1 animate-[fadeIn_0.5s_ease-out]"
+            className="glass-card rounded-2xl p-4 text-center hover:shadow-[0_8px_32px_rgba(66,133,244,0.12)]
+                       transition-all duration-300 animate-[fadeIn_0.5s_ease-out]"
             style={{ animationDelay: `${i * 0.1}s` }}
           >
-            <div className="text-2xl mb-3">{step.icon}</div>
-            <div className="text-xs font-bold mb-2 tracking-widest" style={{ color: step.color }}>
+            <div className="text-xl mb-2">{step.icon}</div>
+            <div className="text-[9px] font-bold mb-1.5 tracking-widest" style={{ color: step.color }}>
               STEP {step.n}
             </div>
-            <h3 className="font-display font-bold text-sm text-charcoal mb-1.5">{step.title}</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">{step.desc}</p>
+            <h3 className="font-display font-bold text-xs text-charcoal mb-1">{step.title}</h3>
+            <p className="text-[10px] text-slate-400 leading-relaxed">{step.desc}</p>
           </div>
         ))}
       </div>
@@ -488,6 +465,7 @@ function HowItWorks({ config }) {
 
 /* ── Dynamic Home Page & Organizer Login ── */
 function HomePage() {
+  const [activeTab, setActiveTab] = useState('login'); // 'login' | 'register'
   const [email, setEmail] = useState(localStorage.getItem('global-logged-in-email') || '');
   const [password, setPassword] = useState(localStorage.getItem('global-logged-in-password') || '');
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('global-logged-in') === 'true');
@@ -496,7 +474,15 @@ function HomePage() {
   const [loginError, setLoginError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Form for creating new event
+  // Register form
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regEventSlug, setRegEventSlug] = useState('');
+  const [regEventName, setRegEventName] = useState('');
+  const [regError, setRegError] = useState('');
+  const [regLoading, setRegLoading] = useState(false);
+
+  // Create event (logged-in)
   const [newSlug, setNewSlug] = useState('');
   const [newEventName, setNewEventName] = useState('');
   const [createError, setCreateError] = useState('');
@@ -522,7 +508,7 @@ function HomePage() {
         localStorage.setItem('global-logged-in-email', inputEmail);
         localStorage.setItem('global-logged-in-password', inputPassword);
       } else {
-        if (!isAuto) setLoginError('Invalid email/username or password.');
+        if (!isAuto) setLoginError('Invalid credentials. Please try again.');
       }
     } catch (err) {
       if (!isAuto) setLoginError(err.message || 'Login failed');
@@ -534,6 +520,32 @@ function HomePage() {
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     performLogin(email, password);
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    if (!regEmail || !regPassword || !regEventSlug) {
+      setRegError('Email, password and event slug are required.');
+      return;
+    }
+    const cleanSlug = regEventSlug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+    setRegLoading(true);
+    setRegError('');
+    try {
+      await createEvent(cleanSlug, regEventName.trim(), regEmail.trim(), regPassword);
+      // Auto-login after registration
+      localStorage.setItem('global-logged-in', 'true');
+      localStorage.setItem('global-logged-in-email', regEmail.trim());
+      localStorage.setItem('global-logged-in-password', regPassword);
+      localStorage.setItem(`admin-logged-in-slug-${cleanSlug}`, 'true');
+      localStorage.setItem(`admin-logged-in-email-${cleanSlug}`, regEmail.trim());
+      localStorage.setItem(`admin-logged-in-password-${cleanSlug}`, regPassword);
+      navigate(`/events/${cleanSlug}?admin=true`);
+    } catch (err) {
+      setRegError(err.message || 'Registration failed. Slug may already be taken.');
+    } finally {
+      setRegLoading(false);
+    }
   };
 
   const handleLogout = () => {
@@ -548,7 +560,6 @@ function HomePage() {
   };
 
   const handleGoToEvent = (eventSlug) => {
-    // Sync credentials to the event-specific local storage so they are automatically authorized there
     localStorage.setItem(`admin-logged-in-slug-${eventSlug}`, 'true');
     localStorage.setItem(`admin-logged-in-email-${eventSlug}`, email);
     localStorage.setItem(`admin-logged-in-password-${eventSlug}`, password);
@@ -564,10 +575,8 @@ function HomePage() {
     const cleanSlug = newSlug.trim().toLowerCase();
     setCreateLoading(true);
     setCreateError('');
-
     try {
       await createEvent(cleanSlug, newEventName.trim(), email, password);
-      // Success! Auto-login to the newly created event and redirect
       localStorage.setItem(`admin-logged-in-slug-${cleanSlug}`, 'true');
       localStorage.setItem(`admin-logged-in-email-${cleanSlug}`, email);
       localStorage.setItem(`admin-logged-in-password-${cleanSlug}`, password);
@@ -580,111 +589,123 @@ function HomePage() {
   };
 
   return (
-    <div className="min-h-screen relative text-charcoal flex flex-col bg-slate-50 animate-[fadeIn_0.5s_ease-out]"
-         style={{
-           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cdefs%3E%3Cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='%23E2E8F0' stroke-width='0.8'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='40' height='40' fill='url(%23grid)'/%3E%3C/svg%3E")`,
-           backgroundAttachment: 'fixed',
-         }}
+    <div
+      className="min-h-screen relative text-charcoal flex flex-col bg-slate-50 animate-[fadeIn_0.5s_ease-out]"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cdefs%3E%3Cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='%23E2E8F0' stroke-width='0.8'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='40' height='40' fill='url(%23grid)'/%3E%3C/svg%3E")`,
+      }}
     >
-      {/* Sticky header */}
-      <header className="sticky top-0 z-40 w-full bg-white/85 backdrop-blur-md border-b border-slate-100 py-4 px-6 shadow-sm">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+      {/* ── Sticky Mobile Header ── */}
+      <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
+        <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img
               src="/logo.png"
               alt="Poster Gen Logo"
-              className="w-9 h-9 rounded-xl object-cover shadow-sm"
+              className="w-8 h-8 rounded-xl object-cover shadow-sm"
             />
             <div>
-              <span className="font-display font-black text-charcoal text-lg tracking-tight">Poster Gen</span>
-              <span className="ml-1.5 text-[10px] bg-gemma-blue/8 text-gemma-blue border border-gemma-blue/20 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Poster Hub</span>
+              <span className="font-display font-black text-charcoal text-base tracking-tight">Poster Gen</span>
+              {isMaster && isLoggedIn && (
+                <span className="ml-2 text-[9px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Master</span>
+              )}
             </div>
           </div>
           {isLoggedIn ? (
-            <div className="flex items-center gap-4">
-              <span className="text-xs text-slate-500 font-medium hidden sm:inline">
-                Logged in: <strong className="text-charcoal">{email}</strong>
-                {isMaster && <span className="ml-1.5 px-2 py-0.5 rounded bg-red-100 text-red-600 font-bold text-[9px] uppercase tracking-wider">Master</span>}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-xl transition-all shadow-sm border border-red-100"
-              >
-                Sign Out
-              </button>
-            </div>
+            <button
+              onClick={handleLogout}
+              className="text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl transition-all border border-red-100"
+            >
+              Sign Out
+            </button>
           ) : (
-            <a href="#login-box" className="text-xs font-bold text-slate-500 hover:text-gemma-blue border border-slate-200 hover:border-gemma-blue bg-white px-4 py-2 rounded-xl transition-all shadow-sm">
-              🔒 Organizer Access
+            <a
+              href="#access-card"
+              className="text-xs font-bold text-gemma-blue border border-gemma-blue/30 bg-gemma-blue/5 px-3 py-1.5 rounded-xl transition-all"
+            >
+              🔒 Sign In
             </a>
           )}
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-4xl mx-auto px-5 py-12 sm:py-16 text-center space-y-10 w-full">
-        
-        {/* Hero Section */}
-        <div className="space-y-4 animate-[fadeIn_0.5s_ease-out]">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gemma-blue/8 border border-gemma-blue/20 mb-2">
+      {/* ── Main Content ── */}
+      <main className="flex-1 max-w-md mx-auto px-4 pt-8 pb-16 w-full space-y-8">
+
+        {/* Hero */}
+        <div className="text-center space-y-3 animate-[fadeIn_0.5s_ease-out]">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gemma-blue/8 border border-gemma-blue/20">
             <SparkleIcon size={10} color="#4285F4" animate />
-            <span className="text-[10px] font-bold text-gemma-blue uppercase tracking-widest">Self-Service Custom Poster Creator</span>
+            <span className="text-[10px] font-bold text-gemma-blue uppercase tracking-widest">Custom Poster Creator</span>
           </div>
-          <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-charcoal leading-tight">
-            Welcome to <br/>
-            <span className="text-gradient">Poster Gen Hub</span>
+          <h1 className="font-display font-black text-4xl text-charcoal leading-tight">
+            <span className="text-gradient">Poster Gen</span>
           </h1>
-          <p className="text-slate-500 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
-            Generate stunning custom participation posters for your local tech and developer community events instantly. Fully powered in-browser.
+          <p className="text-slate-500 text-sm leading-relaxed">
+            Create stunning participation posters for your community events. Fast, free, fully in-browser.
           </p>
         </div>
 
-        {/* Dynamic Area based on Login state */}
-        {isLoggedIn ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start text-left max-w-3xl mx-auto">
-            
-            {/* Events List card */}
-            <div className="bg-white/90 backdrop-blur rounded-3xl p-6 border border-slate-100 shadow-xl space-y-4 min-h-[300px] flex flex-col">
-              <div>
-                <h3 className="font-display font-bold text-charcoal text-base flex items-center gap-2">
-                  <span>📅</span> Your Managed Events
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Select an event config below to customize templates, colors, logos, and check generation analytics.
-                </p>
+        {/* ── Public Events Card (always visible) ── */}
+        <div className="bg-white/80 backdrop-blur rounded-3xl p-5 border border-slate-100 shadow-lg space-y-3 animate-[fadeIn_0.55s_ease-out]">
+          <h3 className="font-display font-bold text-charcoal text-sm flex items-center gap-2">
+            <span>🌐</span> Public Events
+          </h3>
+          <button
+            onClick={() => navigate('/events/gemma4-kozhikode')}
+            className="w-full p-4 rounded-2xl border border-slate-100 hover:border-gemma-green text-left flex items-center justify-between group bg-white shadow-sm transition-all cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gemma-green/10 flex items-center justify-center text-lg flex-shrink-0">💡</div>
+              <div className="min-w-0">
+                <h4 className="text-sm font-bold text-charcoal">Gemma 4 Launch Hub</h4>
+                <p className="text-xs text-slate-400">Kozhikode · Open to all</p>
               </div>
+            </div>
+            <span className="text-xs font-bold text-gemma-green group-hover:translate-x-0.5 transition-transform flex-shrink-0">Open →</span>
+          </button>
+        </div>
 
-              {loading ? (
-                <div className="flex-1 flex flex-col items-center justify-center py-10 space-y-2">
-                  <div className="w-6 h-6 border-2 border-gemma-blue border-t-transparent rounded-full animate-spin" />
-                  <p className="text-xs text-slate-400">Loading events list…</p>
-                </div>
-              ) : events.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center py-10 text-center border-2 border-dashed border-slate-100 rounded-2xl p-4 bg-slate-50/50">
+        {/* ── Logged-in Panel ── */}
+        {isLoggedIn ? (
+          <div className="space-y-5 animate-[fadeIn_0.5s_ease-out]">
+            {/* User badge */}
+            <div className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gemma-blue to-gemma-green flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                {email.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-charcoal truncate">{email}</p>
+                <p className="text-[10px] text-slate-400">{isMaster ? '👑 Master Admin' : 'Organizer'}</p>
+              </div>
+            </div>
+
+            {/* Events list */}
+            <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-lg space-y-4">
+              <h3 className="font-display font-bold text-charcoal text-sm flex items-center gap-2">
+                <span>📅</span> Your Events
+                {loading && <div className="w-3.5 h-3.5 border-2 border-gemma-blue border-t-transparent rounded-full animate-spin ml-1" />}
+              </h3>
+              {events.length === 0 && !loading ? (
+                <div className="flex flex-col items-center py-8 text-center border-2 border-dashed border-slate-100 rounded-2xl">
                   <span className="text-2xl mb-2">💡</span>
-                  <h4 className="text-sm font-bold text-slate-700">No Events Found</h4>
-                  <p className="text-xs text-slate-400 mt-1 max-w-[200px]">
-                    You haven't claimed or been invited to any event slugs yet. Create one!
-                  </p>
+                  <p className="text-xs text-slate-500 font-semibold">No events yet</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Create one below</p>
                 </div>
               ) : (
-                <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+                <div className="space-y-2">
                   {events.map((evt) => (
                     <div
                       key={evt.slug}
-                      className="p-3.5 rounded-2xl border border-slate-100 hover:border-gemma-blue bg-white flex items-center justify-between group shadow-sm transition-all"
+                      className="p-3.5 rounded-2xl border border-slate-100 hover:border-gemma-blue bg-slate-50 flex items-center justify-between group transition-all"
                     >
                       <div className="min-w-0 flex-1">
-                        <h4 className="text-sm font-bold text-charcoal truncate pr-2">
-                          {evt.eventName || 'Unnamed Event'}
-                        </h4>
-                        <span className="text-[10px] font-semibold text-gemma-blue">
-                          /events/{evt.slug}
-                        </span>
+                        <p className="text-sm font-bold text-charcoal truncate">{evt.eventName || 'Unnamed Event'}</p>
+                        <span className="text-[10px] font-semibold text-gemma-blue">/e/{evt.slug}</span>
                       </div>
                       <button
                         onClick={() => handleGoToEvent(evt.slug)}
-                        className="flex-shrink-0 text-xs font-bold text-white bg-gemma-blue group-hover:bg-gemma-blue/90 px-3.5 py-1.5 rounded-xl shadow-sm transition-all"
+                        className="flex-shrink-0 text-xs font-bold text-white bg-gemma-blue px-3 py-1.5 rounded-xl shadow-sm transition-all active:scale-95"
                       >
                         Edit ⚙️
                       </button>
@@ -694,129 +715,209 @@ function HomePage() {
               )}
             </div>
 
-            {/* Create Event Card */}
-            <div className="bg-white/90 backdrop-blur rounded-3xl p-6 border border-slate-100 shadow-xl space-y-4">
-              <div>
-                <h3 className="font-display font-bold text-charcoal text-base flex items-center gap-2">
-                  <span>🆕</span> Claim / Create New Event
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Enter a unique URL slug (lowercase letters, numbers, and dashes only) to claim ownership and manage a new event.
-                </p>
-              </div>
-
-              <form onSubmit={handleCreateEvent} className="space-y-3.5">
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider font-display">Event Slug *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. gemma4-kerala"
-                    value={newSlug}
-                    onChange={(e) => setNewSlug(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider font-display">Event Display Name (Optional)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Gemma 4 Launch Kerala"
-                    value={newEventName}
-                    onChange={(e) => setNewEventName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
-                  />
-                </div>
-
+            {/* Create New Event */}
+            <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-lg space-y-4">
+              <h3 className="font-display font-bold text-charcoal text-sm flex items-center gap-2">
+                <span>🆕</span> New Event
+              </h3>
+              <form onSubmit={handleCreateEvent} className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Event slug (e.g. my-event-2026)"
+                  value={newSlug}
+                  onChange={(e) => setNewSlug(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Event name (optional)"
+                  value={newEventName}
+                  onChange={(e) => setNewEventName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
+                />
                 {createError && <p className="text-xs text-red-500 font-semibold">{createError}</p>}
-
                 <button
                   type="submit"
                   disabled={createLoading}
-                  className="w-full py-2.5 bg-gradient-to-r from-gemma-blue to-gemma-green text-white font-bold rounded-xl text-xs transition-all hover:brightness-105 active:scale-98 shadow-md cursor-pointer disabled:opacity-50"
+                  className="w-full py-3 bg-gradient-to-r from-gemma-blue to-gemma-green text-white font-bold rounded-xl text-sm transition-all hover:brightness-105 active:scale-[0.98] shadow-md cursor-pointer disabled:opacity-50"
                 >
-                  {createLoading ? 'Claiming slug…' : 'Create Event & Open'}
+                  {createLoading ? 'Creating…' : 'Create & Open Event'}
                 </button>
               </form>
             </div>
-
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* Public Default Showcase Card */}
-            <div className="max-w-md mx-auto bg-white/70 backdrop-blur rounded-3xl p-6 border border-white shadow-xl space-y-4 animate-[fadeIn_0.6s_ease-out]">
-              <h3 className="font-display font-bold text-charcoal text-base">Explore Public Events</h3>
-              <div className="space-y-3">
-                <button
-                  onClick={() => navigate('/events/gemma4-kozhikode')}
-                  className="w-full p-4 rounded-2xl border border-slate-100 hover:border-gemma-green text-left flex items-center justify-between group bg-white shadow-sm transition-all cursor-pointer animate-[fadeIn_0.5s_ease-out]"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gemma-green/10 flex items-center justify-center text-lg">💡</div>
-                    <div>
-                      <h4 className="text-sm font-bold text-charcoal">Gemma 4 Launch Hub</h4>
-                      <p className="text-xs text-slate-400">Default Template · Kozhikode</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-semibold text-gemma-green group-hover:translate-x-1 transition-transform">Enter →</span>
-                </button>
-              </div>
+          /* ── Auth Card (Sign In / Register) ── */
+          <div id="access-card" className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden animate-[fadeIn_0.6s_ease-out]">
+            {/* Toggle tabs */}
+            <div className="flex border-b border-slate-100">
+              <button
+                onClick={() => { setActiveTab('login'); setLoginError(''); }}
+                className={`flex-1 py-4 text-sm font-bold transition-all ${
+                  activeTab === 'login'
+                    ? 'text-gemma-blue border-b-2 border-gemma-blue bg-gemma-blue/4'
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => { setActiveTab('register'); setRegError(''); }}
+                className={`flex-1 py-4 text-sm font-bold transition-all ${
+                  activeTab === 'register'
+                    ? 'text-gemma-green border-b-2 border-gemma-green bg-gemma-green/4'
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                Register
+              </button>
             </div>
 
-            {/* Organizer Login Form */}
-            <div id="login-box" className="max-w-md mx-auto bg-white rounded-3xl p-8 border border-slate-100 shadow-xl text-left space-y-5 animate-[fadeIn_0.7s_ease-out]">
-              <div>
-                <h3 className="font-display font-bold text-charcoal text-lg flex items-center gap-2">
-                  <span>🔒</span> Organizer Access
-                </h3>
-                <p className="text-xs text-slate-400 mt-1">
-                  Sign in with your organizer email and password to view and manage your developer community events, configurations, and templates.
-                </p>
-              </div>
-
-              <form onSubmit={handleLoginSubmit} className="space-y-4 font-sans">
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider font-display">Email / Username</label>
-                  <input
-                    type="text"
-                    placeholder="Enter organizer email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider font-display">Password</label>
-                  <input
-                    type="password"
-                    placeholder="Enter password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
-                    required
-                  />
-                </div>
-
-                {loginError && <p className="text-xs text-red-500 font-semibold">{loginError}</p>}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3 bg-gradient-to-r from-gemma-blue to-gemma-green text-white font-bold rounded-xl text-sm transition-all hover:brightness-105 active:scale-98 shadow-md cursor-pointer disabled:opacity-50"
-                >
-                  {loading ? 'Verifying credentials…' : 'Sign In'}
-                </button>
-              </form>
+            <div className="p-6">
+              {activeTab === 'login' ? (
+                /* ── Sign In Form ── */
+                <form onSubmit={handleLoginSubmit} className="space-y-4">
+                  <div>
+                    <p className="text-xs text-slate-400 mb-4">Sign in to manage your events and templates.</p>
+                  </div>
+                  <div className="space-y-3">
+                    <input
+                      id="login-email"
+                      type="text"
+                      placeholder="Email or username"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
+                      autoComplete="username"
+                      required
+                    />
+                    <input
+                      id="login-password"
+                      type="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-blue focus:outline-none text-sm transition-colors"
+                      autoComplete="current-password"
+                      required
+                    />
+                  </div>
+                  {loginError && (
+                    <p className="text-xs text-red-500 font-semibold bg-red-50 px-3 py-2 rounded-lg">{loginError}</p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 bg-gradient-to-r from-gemma-blue to-gemma-green text-white font-bold rounded-xl text-sm transition-all hover:brightness-105 active:scale-[0.98] shadow-md cursor-pointer disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                        Signing in…
+                      </span>
+                    ) : 'Sign In →'}
+                  </button>
+                  <p className="text-center text-[11px] text-slate-400">
+                    New here?{' '}
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('register')}
+                      className="text-gemma-green font-bold hover:underline"
+                    >
+                      Create an account
+                    </button>
+                  </p>
+                </form>
+              ) : (
+                /* ── Register Form ── */
+                <form onSubmit={handleRegisterSubmit} className="space-y-4">
+                  <div>
+                    <p className="text-xs text-slate-400 mb-4">Create your account and claim your first event slug.</p>
+                  </div>
+                  <div className="space-y-3">
+                    <input
+                      id="reg-email"
+                      type="email"
+                      placeholder="Your email"
+                      value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
+                      className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-green focus:outline-none text-sm transition-colors"
+                      autoComplete="email"
+                      required
+                    />
+                    <input
+                      id="reg-password"
+                      type="password"
+                      placeholder="Create a password"
+                      value={regPassword}
+                      onChange={(e) => setRegPassword(e.target.value)}
+                      className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-green focus:outline-none text-sm transition-colors"
+                      autoComplete="new-password"
+                      required
+                    />
+                    <div className="relative">
+                      <input
+                        id="reg-event-slug"
+                        type="text"
+                        placeholder="Event slug (e.g. my-event-2026)"
+                        value={regEventSlug}
+                        onChange={(e) => setRegEventSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                        className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-green focus:outline-none text-sm transition-colors"
+                        required
+                      />
+                      {regEventSlug && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gemma-green font-bold">/e/{regEventSlug}</span>
+                      )}
+                    </div>
+                    <input
+                      id="reg-event-name"
+                      type="text"
+                      placeholder="Event display name (optional)"
+                      value={regEventName}
+                      onChange={(e) => setRegEventName(e.target.value)}
+                      className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-gemma-green focus:outline-none text-sm transition-colors"
+                    />
+                  </div>
+                  {regError && (
+                    <p className="text-xs text-red-500 font-semibold bg-red-50 px-3 py-2 rounded-lg">{regError}</p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={regLoading}
+                    className="w-full py-3.5 bg-gradient-to-r from-gemma-green to-gemma-blue text-white font-bold rounded-xl text-sm transition-all hover:brightness-105 active:scale-[0.98] shadow-md cursor-pointer disabled:opacity-50"
+                  >
+                    {regLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                        Creating account…
+                      </span>
+                    ) : 'Register & Get Started →'}
+                  </button>
+                  <p className="text-center text-[11px] text-slate-400">
+                    Already have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('login')}
+                      className="text-gemma-blue font-bold hover:underline"
+                    >
+                      Sign in
+                    </button>
+                  </p>
+                </form>
+              )}
             </div>
           </div>
         )}
       </main>
 
-      <footer className="border-t border-slate-100 py-6 text-center text-xs text-slate-400 mt-12 bg-white/40">
-        Poster Gen Hub · Built with AI & µLearn Dev Community
+      {/* Footer */}
+      <footer className="border-t border-slate-100 py-5 text-center bg-white/40">
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <img src="/logo.png" alt="" className="w-5 h-5 rounded-md object-cover" />
+          <span className="text-xs font-bold text-charcoal">Poster Gen</span>
+        </div>
+        <p className="text-[10px] text-slate-400">Built with AI · µLearn Dev Community</p>
       </footer>
     </div>
   );

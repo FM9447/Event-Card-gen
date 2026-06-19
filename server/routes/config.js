@@ -149,4 +149,94 @@ router.delete('/:slug/reset', async (req, res) => {
   }
 });
 
+// ── POST /api/config/login ─────────────────────────────────────────────────────
+// Authenticates an organizer globally and returns all events they have access to.
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ ok: false, error: 'Email and password are required' });
+    }
+
+    const cleanEmail = email.trim();
+
+    // 1. Master admin check
+    if (cleanEmail.toLowerCase() === 'fm9447' && password === '944794') {
+      const allEvents = await EventConfig.find({});
+      return res.json({ ok: true, isMaster: true, events: allEvents });
+    }
+
+    // 2. Find events where this user is the owner or whitelisted
+    const events = await EventConfig.find({
+      $and: [
+        { adminPassword: password },
+        {
+          $or: [
+            { adminEmail: { $regex: new RegExp(`^${cleanEmail}$`, 'i') } },
+            { allowedEmails: { $regex: new RegExp(`^${cleanEmail}$`, 'i') } }
+          ]
+        }
+      ]
+    });
+
+    res.json({
+      ok: true,
+      isMaster: false,
+      events
+    });
+  } catch (err) {
+    console.error('[POST /api/config/login]', err);
+    res.status(500).json({ ok: false, error: 'Login failed' });
+  }
+});
+
+// ── POST /api/config/create ───────────────────────────────────────────────────
+// Creates or claims a new event slug for a logged-in user.
+router.post('/create', async (req, res) => {
+  try {
+    const { slug, eventName, sessionEmail, sessionPassword } = req.body;
+    if (!slug || !sessionEmail || !sessionPassword) {
+      return res.status(400).json({ ok: false, error: 'Slug, email, and password are required' });
+    }
+
+    const cleanSlug = slug.trim().toLowerCase();
+    const cleanEmail = sessionEmail.trim();
+
+    // Validate slug pattern (alphanumeric and dashes)
+    if (!/^[a-z0-9-]+$/.test(cleanSlug)) {
+      return res.status(400).json({ ok: false, error: 'Event slug must contain only lowercase letters, numbers, and dashes.' });
+    }
+
+    // Check if slug already exists
+    let existing = await EventConfig.findOne({ slug: cleanSlug });
+    if (existing && existing.adminEmail) {
+      if (existing.adminEmail.toLowerCase() !== cleanEmail.toLowerCase()) {
+        return res.status(400).json({ ok: false, error: `The event slug '${cleanSlug}' is already claimed by another organizer.` });
+      }
+      return res.json({ ok: true, config: existing });
+    }
+
+    // Create or claim it
+    const updates = {
+      slug: cleanSlug,
+      adminEmail: cleanEmail,
+      adminPassword: sessionPassword,
+    };
+    if (eventName) {
+      updates.eventName = eventName;
+    }
+
+    const config = await EventConfig.findOneAndUpdate(
+      { slug: cleanSlug },
+      { $set: updates },
+      { upsert: true, new: true, runValidators: true }
+    );
+
+    res.json({ ok: true, config });
+  } catch (err) {
+    console.error('[POST /api/config/create]', err);
+    res.status(500).json({ ok: false, error: 'Failed to create event' });
+  }
+});
+
 export default router;

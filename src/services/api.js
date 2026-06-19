@@ -45,6 +45,21 @@ export async function verifyConfigCredentials(slug, email, password) {
   return data;
 }
 
+export async function globalLogin(email, password) {
+  const data = await request('POST', '/config/login', { email, password });
+  return data;
+}
+
+export async function createEvent(slug, eventName, sessionEmail, sessionPassword) {
+  const data = await request('POST', '/config/create', {
+    slug,
+    eventName,
+    sessionEmail,
+    sessionPassword,
+  });
+  return data.config;
+}
+
 // ── Poster Analytics ──────────────────────────────────────────────────────────
 
 /**

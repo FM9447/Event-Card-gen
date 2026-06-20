@@ -30,7 +30,7 @@ export async function verifyAuth(slug, email, password) {
     config = await EventConfig.findOneAndUpdate(
       { slug },
       { $setOnInsert: { slug } },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
   }
 

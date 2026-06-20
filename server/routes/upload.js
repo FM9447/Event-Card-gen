@@ -177,7 +177,7 @@ router.post('/template', upload.single('template'), async (req, res) => {
         },
         $setOnInsert: { slug },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     res.json({
@@ -272,7 +272,7 @@ router.post('/background', upload.single('background'), async (req, res) => {
         },
         $setOnInsert: { slug },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     res.json({
@@ -367,7 +367,7 @@ router.post('/banner', upload.single('banner'), async (req, res) => {
         },
         $setOnInsert: { slug },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     res.json({

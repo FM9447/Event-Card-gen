@@ -14,7 +14,7 @@ router.get('/:slug', async (req, res) => {
     const config = await EventConfig.findOneAndUpdate(
       { slug },
       { $setOnInsert: { slug } },
-      { upsert: true, new: true, runValidators: true }
+      { upsert: true, returnDocument: 'after', runValidators: true }
     );
 
     res.json({ ok: true, config });
@@ -98,7 +98,7 @@ router.put('/:slug', async (req, res) => {
     const config = await EventConfig.findOneAndUpdate(
       { slug },
       { $set: updates },
-      { upsert: true, new: true, runValidators: true }
+      { upsert: true, returnDocument: 'after', runValidators: true }
     );
 
     res.json({ ok: true, config });
@@ -143,7 +143,7 @@ router.delete('/:slug/reset', async (req, res) => {
           allowedEmails
         } 
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
     res.json({ ok: true, config });
   } catch (err) {
@@ -232,7 +232,7 @@ router.post('/create', async (req, res) => {
     const config = await EventConfig.findOneAndUpdate(
       { slug: cleanSlug },
       { $set: updates },
-      { upsert: true, new: true, runValidators: true }
+      { upsert: true, returnDocument: 'after', runValidators: true }
     );
 
     res.json({ ok: true, config });

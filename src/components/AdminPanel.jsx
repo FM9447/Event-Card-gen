@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import SparkleIcon from './SparkleIcon';
+import AdminPreview from './AdminPreview';
 
 const ADMIN_PASSWORD = 'GEMMA2026';
 
@@ -565,6 +566,9 @@ export default function AdminPanel({
                     </button>
                   </div>
                 </div>
+
+                {/* Live Interactive Preview Box */}
+                <AdminPreview config={config} onUpdateConfig={onUpdateConfig} />
 
                 {/* Slider: Horizontal X */}
                 <div className="space-y-1">

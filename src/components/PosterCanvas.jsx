@@ -6,6 +6,7 @@ import SparkleIcon from './SparkleIcon';
 export default function PosterCanvas({ userImg, config, generationId, onDownload }) {
   const canvasRef = useRef(null);
   const [templateImg, setTemplateImg] = useState(null);
+  const [dimensions, setDimensions] = useState({ w: POSTER_DIMS.w, h: POSTER_DIMS.h });
   const [saving, setSaving] = useState(false);
   const [savedUrl, setSavedUrl] = useState(null);
 
@@ -13,14 +14,19 @@ export default function PosterCanvas({ userImg, config, generationId, onDownload
   useEffect(() => {
     if (!config.templateUrl) {
       setTemplateImg(null);
+      setDimensions({ w: POSTER_DIMS.w, h: POSTER_DIMS.h });
       return;
     }
     const img = new Image();
     img.crossOrigin = 'anonymous'; // required for canvas export with Cloudinary URLs
-    img.onload = () => setTemplateImg(img);
+    img.onload = () => {
+      setTemplateImg(img);
+      setDimensions({ w: img.naturalWidth || POSTER_DIMS.w, h: img.naturalHeight || POSTER_DIMS.h });
+    };
     img.onerror = () => {
       console.warn('Failed to load template image');
       setTemplateImg(null);
+      setDimensions({ w: POSTER_DIMS.w, h: POSTER_DIMS.h });
     };
     img.src = config.templateUrl;
   }, [config.templateUrl]);
@@ -29,8 +35,8 @@ export default function PosterCanvas({ userImg, config, generationId, onDownload
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    drawPoster(ctx, { userImg, templateImg, config, canvasW: POSTER_DIMS.w, canvasH: POSTER_DIMS.h });
-  }, [userImg, templateImg, config]);
+    drawPoster(ctx, { userImg, templateImg, config, canvasW: dimensions.w, canvasH: dimensions.h });
+  }, [userImg, templateImg, config, dimensions]);
 
   useEffect(() => {
     render();
@@ -93,12 +99,12 @@ export default function PosterCanvas({ userImg, config, generationId, onDownload
         {/* Canvas — aspect-ratio box so it always fills its column */}
         <div
           className="canvas-wrapper w-full rounded-2xl overflow-hidden shadow-xl relative"
-          style={{ aspectRatio: '1080 / 1350' }}
+          style={{ aspectRatio: `${dimensions.w} / ${dimensions.h}` }}
         >
           <canvas
             ref={canvasRef}
-            width={POSTER_DIMS.w}
-            height={POSTER_DIMS.h}
+            width={dimensions.w}
+            height={dimensions.h}
             id="poster-canvas"
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }}
           />
@@ -191,7 +197,19 @@ export default function PosterCanvas({ userImg, config, generationId, onDownload
         )}
       </div>
 
-      <p className="text-xs text-slate-400 -mt-2">1080 × 1350 px · Perfect for Instagram</p>
+      {/* Loading overlay for crop/bg-removal */}
+      {config.isProcessingImage && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl animate-[fadeIn_0.2s_ease-out]">
+          <div className="flex flex-col items-center gap-3 bg-white px-6 py-4 rounded-xl shadow-2xl">
+            <div className="w-6 h-6 border-4 border-gemma-blue border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm font-bold text-charcoal">Processing Photo…</p>
+          </div>
+        </div>
+      )}
+
+      <p className="text-xs text-slate-400 -mt-2">
+        {dimensions.w} × {dimensions.h} px · Custom Poster
+      </p>
     </div>
   );
 }

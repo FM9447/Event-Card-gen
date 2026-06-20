@@ -6,6 +6,7 @@ import InfoCards from './components/InfoCards';
 import PartnersBlock from './components/PartnersBlock';
 import AdminPanel from './components/AdminPanel';
 import SparkleIcon from './components/SparkleIcon';
+import CropperModal from './components/CropperModal';
 import { useEventConfig } from './hooks/useEventConfig';
 import { logPosterGenerated, markPosterDownloaded, globalLogin, createEvent } from './services/api';
 
@@ -72,6 +73,7 @@ export default function App() {
   // Photo toggle state variables to allow dynamic reprocessing
   const [rawFile, setRawFile] = useState(null);
   const [originalDataUrl, setOriginalDataUrl] = useState(null);
+  const [cropModalData, setCropModalData] = useState(null); // { file, dataUrl }
 
   // Check if admin session or URL param is active to open drawer
   useEffect(() => {
@@ -116,16 +118,27 @@ export default function App() {
   }, []);
 
   // When user uploads a photo
-  const handleImageReady = useCallback(async (file, dataUrl) => {
-    setRawFile(file);
-    setOriginalDataUrl(dataUrl);
+  const handleImageReady = useCallback((file, dataUrl) => {
+    // Before processing, open the cropper
+    setCropModalData({ file, dataUrl });
+  }, []);
+
+  const handleCropComplete = useCallback(async (croppedBlob, croppedUrl) => {
+    setCropModalData(null);
+    const newFile = new File([croppedBlob], cropModalData.file?.name || 'photo.png', { type: 'image/png' });
+    setRawFile(newFile);
+    setOriginalDataUrl(croppedUrl);
 
     // Log analytics (non-blocking, no photo data sent)
     logPosterGenerated(activeSlug, { bgRemoved: bgRemoveEnabled })
       .then(id => { generationIdRef.current = id; });
 
-    await processPhoto(file, dataUrl, bgRemoveEnabled);
-  }, [bgRemoveEnabled, activeSlug, processPhoto]);
+    await processPhoto(newFile, croppedUrl, bgRemoveEnabled);
+  }, [cropModalData, bgRemoveEnabled, activeSlug, processPhoto]);
+
+  const handleCropCancel = useCallback(() => {
+    setCropModalData(null);
+  }, []);
 
   // Re-process when BG remove toggle changes and we already have an image
   const handleBgRemoveToggle = useCallback(async (enabled) => {
@@ -250,6 +263,7 @@ export default function App() {
             <PosterCanvas
               userImg={userImgEl}
               config={config}
+              isProcessing={isProcessing}
               generationId={generationIdRef.current}
               onDownload={handleDownload}
             />
@@ -308,22 +322,16 @@ export default function App() {
           borderColor: 'rgba(226, 232, 240, 0.4)',
         }}
       >
-        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <SparkleIcon size={12} color="var(--color-gemma-blue)" animate />
-            <span className="text-xs font-bold">{config.eventName || 'Poster Gen'}</span>
-            <SparkleIcon size={12} color="var(--color-gemma-green)" animate />
-          </div>
-          <p className="text-[10px] opacity-60">
-            Powered by Poster Gen &middot; &micro;Learn Dev Community
-          </p>
-        </div>
+        <p className="text-sm font-medium opacity-70">
+          Powered by <a href="https://mulearn.org" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-100 transition-opacity">μLearn</a>
+        </p>
       </footer>
 
-      {/* Admin panel */}
+      {/* Admin Panel Drawer */}
       <AdminPanel
         isOpen={adminOpen}
         onClose={() => setAdminOpen(false)}
+        activeSlug={activeSlug}
         config={config}
         syncing={syncing}
         apiOk={apiOk}
@@ -333,7 +341,7 @@ export default function App() {
         onRemovePartner={removePartner}
         onLogoUpload={(id, logo) => updatePartner(id, { logo })}
         initialStep={
-          (localStorage.getItem('admin-logged-in-slug-' + config.slug) === 'true' ||
+          (localStorage.getItem('admin-logged-in-slug-' + activeSlug) === 'true' ||
            localStorage.getItem('global-logged-in') === 'true')
             ? 'panel'
             : 'login'
@@ -343,6 +351,16 @@ export default function App() {
         onLoginSuccess={handleAdminLoginSuccess}
         onLogOut={handleAdminLogOut}
       />
+
+      {/* Cropper Modal */}
+      {cropModalData && (
+        <CropperModal
+          imageSrc={cropModalData.dataUrl}
+          photoShape={config.photoShape || 'circle'}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
     </div>
   );
 }

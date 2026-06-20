@@ -147,17 +147,41 @@ export async function removeBgServer(file) {
   const formData = new FormData();
   formData.append('photo', file);
 
-  const res = await fetch(`${BASE}/upload/remove-bg`, {
-    method: 'POST',
-    body: formData,
-  });
+  const primaryUrl = import.meta.env.VITE_AZURE_BG_REMOVER_URL || 'http://localhost:8080/remove-bg';
+  const fallbackUrl = `${BASE}/upload/remove-bg`;
 
-  const data = await res.json();
-  if (!res.ok || !data.ok) {
-    throw new Error(data.error || 'Server background removal failed');
+  try {
+    console.log(`[INFO] Attempting background removal via primary service: ${primaryUrl}`);
+    const res = await fetch(primaryUrl, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) {
+      throw new Error(`Primary bg remover returned status ${res.status}`);
+    }
+
+    const data = await res.json();
+    if (!data.ok) {
+      throw new Error(data.error || 'Primary bg remover failed');
+    }
+    return data.dataUrl;
+  } catch (primaryErr) {
+    console.warn(`[WARN] Primary background remover (${primaryUrl}) failed, falling back to main backend:`, primaryErr.message || primaryErr);
+    
+    const res = await fetch(fallbackUrl, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || 'Server background removal fallback failed');
+    }
+    return data.dataUrl;
   }
-  return data.dataUrl;
 }
+
 
 export async function removeTemplate(slug, sessionEmail, sessionPassword) {
   const emailParam = encodeURIComponent(sessionEmail || '');

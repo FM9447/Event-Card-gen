@@ -178,7 +178,7 @@ export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER
       ctx.save();
       ctx.strokeStyle = 'rgba(66, 133, 244, 0.7)';
       ctx.lineWidth = 3;
-      ctx.setLineDash([8, 4]);
+      ctx.setLineDash([8, 6]);
       ctx.beginPath();
       if (photoShape === 'circle') {
         ctx.ellipse(photoCX, photoCY, photoW / 2, photoH / 2, 0, 0, Math.PI * 2);
@@ -187,7 +187,12 @@ export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER
         roundRect(ctx, photoCX - photoW / 2, photoCY - photoH / 2, photoW, photoH, radius);
       }
       ctx.stroke();
+      ctx.restore();
+      
+      // Also draw the configurable border and background so organizers can preview them!
+      drawPhotoBorder(ctx, config, photoCX, photoCY, photoW, photoH, photoShape);
 
+      ctx.save();
       ctx.font = 'bold 20px Inter, sans-serif';
       ctx.fillStyle = '#4285F4';
       ctx.textAlign = 'center';
@@ -348,6 +353,9 @@ export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER
       ctx.textAlign = 'center';
       ctx.fillText('Your Photo Here', photoCX, photoCY + (photoH * 0.025));
       ctx.restore();
+      
+      // Also draw the configurable border and background so organizers can preview them!
+      drawPhotoBorder(ctx, config, photoCX, photoCY, photoW, photoH, photoShape);
     }
   } else {
     // ── RECTANGLE/SQUARE SHAPE ──
@@ -430,6 +438,9 @@ export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER
       ctx.textAlign = 'center';
       ctx.fillText('Your Photo Here', photoCX, photoCY + (photoH * 0.025));
       ctx.restore();
+      
+      // Also draw the configurable border and background so organizers can preview them!
+      drawPhotoBorder(ctx, config, photoCX, photoCY, photoW, photoH, photoShape);
     }
   }
 

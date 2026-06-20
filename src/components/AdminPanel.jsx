@@ -2,22 +2,30 @@ import { useState, useEffect, useRef } from 'react';
 import SparkleIcon from './SparkleIcon';
 import AdminPreview from './AdminPreview';
 
+import { removeBgServer } from '../services/api';
+
 const ADMIN_PASSWORD = 'GEMMA2026';
 
-async function removeImageBackground(fileOrDataUrl) {
-  const { removeBackground } = await import('@imgly/background-removal');
-  let input = fileOrDataUrl;
-  if (typeof fileOrDataUrl === 'string' && fileOrDataUrl.startsWith('data:')) {
-    const res = await fetch(fileOrDataUrl);
-    input = await res.blob();
+// Helper to convert base64 to File
+function dataURLtoFile(dataurl, filename) {
+  var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+  while(n--){
+      u8arr[n] = bstr.charCodeAt(n);
   }
-  const blob = await removeBackground(input);
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => resolve(e.target.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+  return new File([u8arr], filename, {type:mime});
+}
+
+async function removeImageBackground(fileOrDataUrl) {
+  let file = fileOrDataUrl;
+  if (typeof fileOrDataUrl === 'string' && fileOrDataUrl.startsWith('data:')) {
+    file = dataURLtoFile(fileOrDataUrl, 'logo.png');
+  } else if (typeof fileOrDataUrl === 'string') {
+    const res = await fetch(fileOrDataUrl);
+    const blob = await res.blob();
+    file = new File([blob], 'logo.png', { type: blob.type });
+  }
+  return await removeBgServer(file);
 }
 
 function PartnerRow({ partner, onUpdate, onRemove, onLogoUpload }) {

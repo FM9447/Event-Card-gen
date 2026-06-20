@@ -8,7 +8,7 @@ import AdminPanel from './components/AdminPanel';
 import SparkleIcon from './components/SparkleIcon';
 import CropperModal from './components/CropperModal';
 import { useEventConfig } from './hooks/useEventConfig';
-import { logPosterGenerated, markPosterDownloaded, globalLogin, createEvent } from './services/api';
+import { logPosterGenerated, markPosterDownloaded, globalLogin, createEvent, removeBgServer } from './services/api';
 
 function hexToRgba(hex, alpha) {
   if (!hex) return `rgba(255, 255, 255, ${alpha})`;
@@ -102,10 +102,8 @@ export default function App() {
     if (removeBg && file) {
       setIsProcessing(true);
       try {
-        const { removeBackground } = await import('@imgly/background-removal');
-        const blob = await removeBackground(file);
-        const objectUrl = URL.createObjectURL(blob);
-        loadImageElement(objectUrl);
+        const processedUrl = await removeBgServer(file);
+        loadImageElement(processedUrl);
       } catch (err) {
         console.error('BG removal failed:', err);
         loadImageElement(dataUrl);

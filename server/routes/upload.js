@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
+import { removeBackground } from '@imgly/background-removal-node';
 import { uploadBuffer, uploadDataUrl, deleteAsset } from '../cloudinary.js';
 import PosterGeneration from '../models/PosterGeneration.js';
 import EventConfig from '../models/EventConfig.js';
@@ -17,6 +18,33 @@ const upload = multer({
     }
     cb(null, true);
   },
+});
+
+// ── POST /api/upload/remove-bg ──────────────────────────────────────────────
+// Receive a photo, remove background on server, and return as base64 PNG.
+router.post('/remove-bg', upload.single('photo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ ok: false, error: 'No file provided' });
+    }
+
+    console.log('[POST /api/upload/remove-bg] Processing image of size:', req.file.size);
+    // Convert multer buffer to Blob for imgly
+    const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
+    
+    // Process via local ML model
+    const resultBlob = await removeBackground(blob);
+    
+    // Convert back to base64
+    const arrayBuffer = await resultBlob.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64 = `data:image/png;base64,${buffer.toString('base64')}`;
+
+    res.json({ ok: true, dataUrl: base64 });
+  } catch (err) {
+    console.error('[POST /api/upload/remove-bg]', err);
+    res.status(500).json({ ok: false, error: 'Background removal failed' });
+  }
 });
 
 // ── POST /api/upload/photo ─────────────────────────────────────────────────

@@ -109,26 +109,54 @@ export async function uploadTemplate(file, slug, onProgress, sessionEmail, sessi
     formData.append('sessionPassword', sessionPassword || '');
 
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/upload/template');
-
-    if (onProgress) {
-      xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
-      });
-    }
-
-    xhr.onload = () => {
-      try {
-        const data = JSON.parse(xhr.responseText);
-        if (!data.ok) return reject(new Error(data.error || 'Upload failed'));
-        resolve(data);
-      } catch {
-        reject(new Error('Invalid server response'));
+    xhr.open('POST', `${BASE}/upload/template`, true);
+    
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) {
+        onProgress(Math.round((e.loaded * 100) / e.total));
       }
     };
-    xhr.onerror = () => reject(new Error('Network error'));
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.ok) resolve(data);
+          else reject(new Error(data.error || 'Upload failed'));
+        } catch {
+          resolve({ ok: true, url: xhr.responseText }); // fallback
+        }
+      } else {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          reject(new Error(data.error || 'Upload failed'));
+        } catch {
+          reject(new Error(`Upload failed with status ${xhr.status}`));
+        }
+      }
+    };
+
+    xhr.onerror = () => reject(new Error('Network error during upload'));
     xhr.send(formData);
   });
+}
+
+// ── ML Offloading ────────────────────────────────────────────────────────────
+
+export async function removeBgServer(file) {
+  const formData = new FormData();
+  formData.append('photo', file);
+
+  const res = await fetch(`${BASE}/upload/remove-bg`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || 'Server background removal failed');
+  }
+  return data.dataUrl;
 }
 
 export async function removeTemplate(slug, sessionEmail, sessionPassword) {

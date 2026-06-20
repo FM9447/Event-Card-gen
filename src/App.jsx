@@ -357,6 +357,7 @@ export default function App() {
         <CropperModal
           imageSrc={cropModalData.dataUrl}
           photoShape={config.photoShape || 'circle'}
+          aspectRatio={(config.photoWidth || 400) / (config.photoHeight || 400)}
           onCropComplete={handleCropComplete}
           onCancel={handleCropCancel}
         />

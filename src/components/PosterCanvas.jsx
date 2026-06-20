@@ -21,7 +21,8 @@ export default function PosterCanvas({ userImg, config, generationId, onDownload
     img.crossOrigin = 'anonymous'; // required for canvas export with Cloudinary URLs
     img.onload = () => {
       setTemplateImg(img);
-      setDimensions({ w: img.naturalWidth || POSTER_DIMS.w, h: img.naturalHeight || POSTER_DIMS.h });
+      const aspect = (img.naturalWidth || POSTER_DIMS.w) / (img.naturalHeight || POSTER_DIMS.h);
+      setDimensions({ w: POSTER_DIMS.w, h: Math.round(POSTER_DIMS.w / aspect) });
     };
     img.onerror = () => {
       console.warn('Failed to load template image');

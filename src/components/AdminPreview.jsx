@@ -11,7 +11,10 @@ export default function AdminPreview({ config, onUpdateConfig }) {
       return;
     }
     const img = new Image();
-    img.onload = () => setTemplateSize({ w: img.naturalWidth || POSTER_DIMS.w, h: img.naturalHeight || POSTER_DIMS.h });
+    img.onload = () => {
+      const aspect = (img.naturalWidth || POSTER_DIMS.w) / (img.naturalHeight || POSTER_DIMS.h);
+      setTemplateSize({ w: POSTER_DIMS.w, h: Math.round(POSTER_DIMS.w / aspect) });
+    };
     img.src = config.templateUrl;
   }, [config.templateUrl]);
 

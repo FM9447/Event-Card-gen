@@ -32,6 +32,19 @@ const eventConfigSchema = new mongoose.Schema(
     photoHeight: { type: Number, default: 400 },
     photoShape:  { type: String, default: 'circle' },
     photoRotation: { type: Number, default: 0 },
+    // Photo border options
+    photoBorderEnabled: { type: Boolean, default: false },
+    photoBorderWidth: { type: Number, default: 8 },
+    photoBorderType: { type: String, default: 'solid' },
+    photoBorderColor: { type: String, default: '#4285F4' },
+    photoBorderGradientStart: { type: String, default: '#4285F4' },
+    photoBorderGradientEnd: { type: String, default: '#34A853' },
+    // Photo background options
+    photoBackgroundEnabled: { type: Boolean, default: false },
+    photoBackgroundType: { type: String, default: 'solid' },
+    photoBackgroundColor: { type: String, default: '#E8F0FE' },
+    photoBackgroundGradientStart: { type: String, default: '#4285F4' },
+    photoBackgroundGradientEnd: { type: String, default: '#34A853' },
     // Theme options
     backgroundOpacity: { type: Number, default: 93 },
     themePrimary:      { type: String, default: '#4285F4' },

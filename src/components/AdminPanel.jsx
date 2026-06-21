@@ -503,6 +503,20 @@ export default function AdminPanel({
                   )}
                 </div>
 
+                {config.templateUrl && (
+                  <div className="space-y-1 mt-3">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Default Template Keyword / Role</label>
+                    <input
+                      type="text"
+                      value={config.templateKeyword || ''}
+                      onChange={(e) => onUpdateConfig({ templateKeyword: e.target.value })}
+                      placeholder="e.g. Attendee, General (defaults to 'Default')"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold
+                                 focus:outline-none focus:border-[#4285F4] focus:ring-1 focus:ring-[#4285F4]/20 transition-all bg-white"
+                    />
+                  </div>
+                )}
+
                 {templateError && (
                   <p className="text-xs text-[#EA4335] font-medium mt-2">{templateError}</p>
                 )}

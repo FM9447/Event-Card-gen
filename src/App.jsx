@@ -302,7 +302,7 @@ export default function App() {
                                focus:outline-none focus:border-gemma-blue focus:ring-1 focus:ring-gemma-blue/20 transition-all cursor-pointer appearance-none"
                   >
                     {config.templateUrl && (
-                      <option value="">Default Event Template</option>
+                      <option value="">{config.templateKeyword || 'Default'}</option>
                     )}
                     {config.templates.map((t, idx) => (
                       <option key={idx} value={t.keyword}>{t.keyword}</option>

@@ -71,7 +71,7 @@ router.put('/:slug', async (req, res) => {
     // Whitelist allowed fields
     const allowed = [
       'eventName', 'location', 'date', 'time', 'headerLogo', 'headerLogoHeight', 'partners',
-      'templateUrl', 'templatePublicId', 'templates', 'backgroundImageUrl', 'backgroundImagePublicId',
+      'templateUrl', 'templatePublicId', 'templateKeyword', 'templates', 'backgroundImageUrl', 'backgroundImagePublicId',
       'bannerUrl', 'bannerPublicId',
       'photoX', 'photoY', 'photoRadius', 'photoWidth', 'photoHeight', 'photoShape', 'photoRotation',
       'photoBorderEnabled', 'photoBorderWidth', 'photoBorderType', 'photoBorderColor', 'photoBorderGradientStart', 'photoBorderGradientEnd',

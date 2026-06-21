@@ -67,7 +67,7 @@ export default function AdminPreview({ config, onUpdateConfig }) {
             onChange={(e) => setSelectedKeyword(e.target.value)}
             className="px-2 py-0.5 rounded border border-slate-200 text-[10px] font-semibold bg-white focus:outline-none"
           >
-            <option value="">Default Template</option>
+            <option value="">{config.templateKeyword || 'Default'}</option>
             {config.templates.map((t, idx) => (
               <option key={idx} value={t.keyword}>{t.keyword}</option>
             ))}

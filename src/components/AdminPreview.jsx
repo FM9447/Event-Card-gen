@@ -4,9 +4,13 @@ import { POSTER_DIMS } from '../utils/canvasUtils';
 export default function AdminPreview({ config, onUpdateConfig }) {
   const containerRef = useRef(null);
   const [templateSize, setTemplateSize] = useState({ w: POSTER_DIMS.w, h: POSTER_DIMS.h });
+  const [selectedKeyword, setSelectedKeyword] = useState('');
+
+  const activeTemplate = config.templates?.find(t => t.keyword === selectedKeyword);
+  const activeUrl = activeTemplate ? activeTemplate.templateUrl : config.templateUrl;
 
   useEffect(() => {
-    if (!config.templateUrl) {
+    if (!activeUrl) {
       setTemplateSize({ w: POSTER_DIMS.w, h: POSTER_DIMS.h });
       return;
     }
@@ -15,8 +19,8 @@ export default function AdminPreview({ config, onUpdateConfig }) {
       const aspect = (img.naturalWidth || POSTER_DIMS.w) / (img.naturalHeight || POSTER_DIMS.h);
       setTemplateSize({ w: POSTER_DIMS.w, h: Math.round(POSTER_DIMS.w / aspect) });
     };
-    img.src = config.templateUrl;
-  }, [config.templateUrl]);
+    img.src = activeUrl;
+  }, [activeUrl]);
 
   // Handle drag to move photo
   const handleDrag = (e) => {
@@ -53,6 +57,24 @@ export default function AdminPreview({ config, onUpdateConfig }) {
          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Interactive Preview</p>
          <p className="text-[10px] text-slate-400">Click & Drag to move</p>
       </div>
+
+      {/* Template Background selector */}
+      {config.templates && config.templates.length > 0 && (
+        <div className="flex items-center gap-1.5 mb-2">
+          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Preview template:</label>
+          <select
+            value={selectedKeyword}
+            onChange={(e) => setSelectedKeyword(e.target.value)}
+            className="px-2 py-0.5 rounded border border-slate-200 text-[10px] font-semibold bg-white focus:outline-none"
+          >
+            <option value="">Default Template</option>
+            {config.templates.map((t, idx) => (
+              <option key={idx} value={t.keyword}>{t.keyword}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <div 
         ref={containerRef}
         className="w-full max-w-[280px] mx-auto relative bg-slate-100 rounded-xl overflow-hidden cursor-crosshair border border-slate-200 shadow-inner"
@@ -61,8 +83,8 @@ export default function AdminPreview({ config, onUpdateConfig }) {
         onMouseDown={handleDrag}
       >
         {/* Background */}
-        {config.templateUrl ? (
-          <img src={config.templateUrl} alt="Template" className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-40" />
+        {activeUrl ? (
+          <img src={activeUrl} alt="Template" className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-40" />
         ) : (
           <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
         )}

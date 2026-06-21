@@ -138,7 +138,7 @@ router.post('/poster', async (req, res) => {
 // URL saved in MongoDB EventConfig. Canvas uses it as the base background.
 router.post('/template', upload.single('template'), async (req, res) => {
   try {
-    const { slug = 'gemma4-kozhikode', sessionEmail, sessionPassword } = req.body;
+    const { slug = 'gemma4-kozhikode', sessionEmail, sessionPassword, keyword } = req.body;
 
     if (!sessionEmail || !sessionPassword) {
       return res.status(401).json({ ok: false, error: 'Authentication credentials are required' });
@@ -153,32 +153,64 @@ router.post('/template', upload.single('template'), async (req, res) => {
       return res.status(400).json({ ok: false, error: 'No file provided' });
     }
 
-    // Delete old template from Cloudinary if one exists
-    const existing = await EventConfig.findOne({ slug });
-    if (existing?.templatePublicId) {
-      await deleteAsset(existing.templatePublicId).catch(() => {});
-    }
+    const cleanedKeyword = keyword ? keyword.trim() : null;
 
     // Upload new template
     const result = await uploadBuffer(req.file.buffer, {
       folder:         'gemma 4/templates',
-      public_id:      `template_${slug}_${Date.now()}`,
+      public_id:      `template_${slug}_${cleanedKeyword ? `${cleanedKeyword.toLowerCase().replace(/[^a-z0-9]/g, '_')}_` : ''}${Date.now()}`,
       tags:           ['template', slug],
       transformation: [], // keep original dimensions for templates
     });
 
-    // Persist URL in MongoDB
-    const config = await EventConfig.findOneAndUpdate(
-      { slug },
-      {
-        $set: {
-          templateUrl:      result.secure_url,
-          templatePublicId: result.public_id,
+    let config;
+    if (cleanedKeyword) {
+      // Find event config and insert/update keyword template
+      const existing = await EventConfig.findOne({ slug });
+      if (!existing) {
+        config = new EventConfig({
+          slug,
+          templates: [{ keyword: cleanedKeyword, templateUrl: result.secure_url, templatePublicId: result.public_id }]
+        });
+        await config.save();
+      } else {
+        const idx = existing.templates.findIndex(t => t.keyword.toLowerCase() === cleanedKeyword.toLowerCase());
+        if (idx > -1) {
+          // Delete old asset from Cloudinary
+          await deleteAsset(existing.templates[idx].templatePublicId).catch(() => {});
+          // Overwrite existing
+          existing.templates[idx].templateUrl = result.secure_url;
+          existing.templates[idx].templatePublicId = result.public_id;
+        } else {
+          // Add new
+          existing.templates.push({
+            keyword: cleanedKeyword,
+            templateUrl: result.secure_url,
+            templatePublicId: result.public_id
+          });
+        }
+        config = await existing.save();
+      }
+    } else {
+      // Delete old default template from Cloudinary if one exists
+      const existing = await EventConfig.findOne({ slug });
+      if (existing?.templatePublicId) {
+        await deleteAsset(existing.templatePublicId).catch(() => {});
+      }
+
+      // Persist URL in MongoDB
+      config = await EventConfig.findOneAndUpdate(
+        { slug },
+        {
+          $set: {
+            templateUrl:      result.secure_url,
+            templatePublicId: result.public_id,
+          },
+          $setOnInsert: { slug },
         },
-        $setOnInsert: { slug },
-      },
-      { upsert: true, returnDocument: 'after' }
-    );
+        { upsert: true, returnDocument: 'after' }
+      );
+    }
 
     res.json({
       ok:          true,
@@ -198,11 +230,11 @@ router.post('/template', upload.single('template'), async (req, res) => {
 });
 
 // ── DELETE /api/upload/template/:slug ─────────────────────────────────────
-// Remove the custom template for a slug (revert to generated canvas template)
+// Remove a template (either default or keyword-based)
 router.delete('/template/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
-    const { email, password } = req.query;
+    const { email, password, keyword } = req.query;
 
     if (!email || !password) {
       return res.status(401).json({ ok: false, error: 'Authentication credentials are required' });
@@ -213,15 +245,33 @@ router.delete('/template/:slug', async (req, res) => {
       return res.status(403).json({ ok: false, error: 'Unauthorized to modify this event configuration' });
     }
 
-    const existing = await EventConfig.findOne({ slug });
-    if (existing?.templatePublicId) {
-      await deleteAsset(existing.templatePublicId).catch(() => {});
+    let config;
+    if (keyword) {
+      const existing = await EventConfig.findOne({ slug });
+      if (existing) {
+        const matched = existing.templates.find(t => t.keyword.toLowerCase() === keyword.toLowerCase());
+        if (matched) {
+          await deleteAsset(matched.templatePublicId).catch(() => {});
+        }
+      }
+      config = await EventConfig.findOneAndUpdate(
+        { slug },
+        { $pull: { templates: { keyword } } },
+        { returnDocument: 'after' }
+      );
+    } else {
+      const existing = await EventConfig.findOne({ slug });
+      if (existing?.templatePublicId) {
+        await deleteAsset(existing.templatePublicId).catch(() => {});
+      }
+      config = await EventConfig.findOneAndUpdate(
+        { slug },
+        { $set: { templateUrl: null, templatePublicId: null } },
+        { returnDocument: 'after' }
+      );
     }
-    await EventConfig.findOneAndUpdate(
-      { slug },
-      { $set: { templateUrl: null, templatePublicId: null } }
-    );
-    res.json({ ok: true, message: 'Template removed' });
+
+    res.json({ ok: true, message: 'Template removed', config });
   } catch (err) {
     console.error('[DELETE /api/upload/template/:slug]', err);
     res.status(500).json({ ok: false, error: 'Failed to remove template' });

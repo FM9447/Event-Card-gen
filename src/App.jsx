@@ -65,6 +65,14 @@ export default function App() {
 
   const [userImgEl, setUserImgEl] = useState(null);       // HTMLImageElement for canvas
   const [isProcessing, setIsProcessing] = useState(false); // BG removal in progress
+  const [selectedTemplateKeyword, setSelectedTemplateKeyword] = useState('');
+
+  // Automatically select first template if no default template URL is set
+  useEffect(() => {
+    if (config.templates && config.templates.length > 0 && !config.templateUrl && !selectedTemplateKeyword) {
+      setSelectedTemplateKeyword(config.templates[0].keyword);
+    }
+  }, [config.templates, config.templateUrl, selectedTemplateKeyword]);
   const [bgRemoveEnabled, setBgRemoveEnabled] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -171,6 +179,16 @@ export default function App() {
     return <HomePage />;
   }
 
+  // Resolve active template from keyword
+  const activeTemplate = config.templates?.find(
+    (t) => t.keyword.toLowerCase() === selectedTemplateKeyword.toLowerCase()
+  );
+  const resolvedConfig = {
+    ...config,
+    templateUrl: activeTemplate ? activeTemplate.templateUrl : config.templateUrl,
+    templatePublicId: activeTemplate ? activeTemplate.templatePublicId : config.templatePublicId,
+  };
+
   // Render Event Poster Creator Page
   const opacityVal = (config.backgroundOpacity !== undefined ? config.backgroundOpacity : 93) / 100;
 
@@ -260,11 +278,44 @@ export default function App() {
             {/* Live canvas preview */}
             <PosterCanvas
               userImg={userImgEl}
-              config={config}
+              config={resolvedConfig}
               isProcessing={isProcessing}
               generationId={generationIdRef.current}
               onDownload={handleDownload}
             />
+
+            {/* Template Selector Dropdown */}
+            {config.templates && config.templates.length > 0 && (
+              <div className="glass-card rounded-2xl p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-gemma-blue to-gemma-green
+                                  flex items-center justify-center flex-shrink-0">
+                    <SparkleIcon size={12} color="white" />
+                  </div>
+                  <h2 className="font-display font-bold text-charcoal text-sm">Select Your Role / Template</h2>
+                </div>
+                <div className="relative">
+                  <select
+                    value={selectedTemplateKeyword}
+                    onChange={(e) => setSelectedTemplateKeyword(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-bold bg-white text-charcoal
+                               focus:outline-none focus:border-gemma-blue focus:ring-1 focus:ring-gemma-blue/20 transition-all cursor-pointer appearance-none"
+                  >
+                    {config.templateUrl && (
+                      <option value="">Default Event Template</option>
+                    )}
+                    {config.templates.map((t, idx) => (
+                      <option key={idx} value={t.keyword}>{t.keyword}</option>
+                    ))}
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                      <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Upload section */}
             <div className="glass-card rounded-2xl p-5">

@@ -150,6 +150,13 @@ export default function AdminPanel({
   const [templateUploading, setTemplateUploading] = useState(false);
   const [templateProgress, setTemplateProgress] = useState(0);
   const [templateError, setTemplateError] = useState('');
+
+  // Keyword-specific templates state
+  const [keywordInput, setKeywordInput] = useState('');
+  const [multiTemplateUploading, setMultiTemplateUploading] = useState(false);
+  const [multiTemplateProgress, setMultiTemplateProgress] = useState(0);
+  const [multiTemplateError, setMultiTemplateError] = useState('');
+  const multiTemplateFileRef = useRef();
   const [bgUploading, setBgUploading] = useState(false);
   const [bgProgress, setBgProgress] = useState(0);
   const [bgError, setBgError] = useState('');
@@ -535,6 +542,178 @@ export default function AdminPanel({
                     }
                   }}
                 />
+              </section>
+
+              <Divider />
+
+              {/* Section: Multiple Custom Templates */}
+              <section className="space-y-4">
+                <SectionLabel icon="🗂️" label="Multiple Custom Templates" />
+                <p className="text-xs text-slate-400 mt-1">
+                  Upload role-specific or option-specific templates (e.g. Speaker, Volunteer, Attendee).
+                  Users can select these templates via their corresponding keyword.
+                </p>
+
+                {/* Keyword Text Input */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Template Keyword / Role</label>
+                  <input
+                    type="text"
+                    value={keywordInput}
+                    onChange={(e) => setKeywordInput(e.target.value)}
+                    placeholder="e.g. Speaker, Volunteer, Attendee"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold
+                               focus:outline-none focus:border-[#4285F4] focus:ring-1 focus:ring-[#4285F4]/20 transition-all"
+                  />
+                </div>
+
+                {/* Upload Zone */}
+                <div
+                  onClick={() => {
+                    if (!keywordInput.trim()) {
+                      alert('Please specify a keyword/role first before selecting an image!');
+                      return;
+                    }
+                    multiTemplateFileRef.current?.click();
+                  }}
+                  className={`
+                    border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer
+                    transition-all duration-200 group
+                    ${!keywordInput.trim() ? 'opacity-50 cursor-not-allowed border-slate-200' : 
+                      multiTemplateUploading
+                        ? 'border-[#4285F4] bg-blue-50'
+                        : 'border-slate-200 hover:border-[#4285F4] hover:bg-blue-50/40'}
+                  `}
+                >
+                  {multiTemplateUploading ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-[#4285F4] border-t-transparent rounded-full animate-spin" />
+                        <span className="text-xs font-semibold text-[#4285F4]">
+                          Uploading custom template... {multiTemplateProgress}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-1.5">
+                        <div
+                          className="bg-[#4285F4] h-1.5 rounded-full transition-all"
+                          style={{ width: `${multiTemplateProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="mx-auto w-12 h-12 rounded-xl bg-gradient-to-br from-[#4285F4]/10 to-[#34A853]/10
+                                      flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                          <rect x="3" y="3" width="18" height="18" rx="3" stroke="#4285F4" strokeWidth="2"/>
+                          <circle cx="8.5" cy="8.5" r="1.5" fill="#4285F4"/>
+                          <path d="M3 16l5-5 4 4 3-3 5 4" stroke="#34A853" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      <p className="text-xs font-semibold text-[#1A1A1A]">
+                        Upload Template for "{keywordInput.trim() || 'Specified Keyword'}"
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        PNG, JPG · max 10 MB
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {multiTemplateError && (
+                  <p className="text-xs text-[#EA4335] font-medium mt-2">{multiTemplateError}</p>
+                )}
+
+                <input
+                  ref={multiTemplateFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files[0];
+                    if (!file || !keywordInput.trim()) return;
+                    setMultiTemplateError('');
+                    setMultiTemplateUploading(true);
+                    setMultiTemplateProgress(0);
+                    try {
+                      const { uploadTemplate } = await import('../services/api');
+                      const result = await uploadTemplate(
+                        file,
+                        config.slug || 'gemma4-kozhikode',
+                        (pct) => setMultiTemplateProgress(pct),
+                        sessionEmail,
+                        sessionPassword,
+                        keywordInput.trim()
+                      );
+                      // Update local config
+                      onUpdateConfig(result.config || {
+                        ...config,
+                        templates: [
+                          ...(config.templates || []).filter(t => t.keyword.toLowerCase() !== keywordInput.trim().toLowerCase()),
+                          {
+                            keyword: keywordInput.trim(),
+                            templateUrl: result.templateUrl,
+                            templatePublicId: result.publicId
+                          }
+                        ]
+                      });
+                      setKeywordInput('');
+                    } catch (err) {
+                      setMultiTemplateError(err.message || 'Upload failed');
+                    } finally {
+                      setMultiTemplateUploading(false);
+                      setMultiTemplateProgress(0);
+                      if (multiTemplateFileRef.current) multiTemplateFileRef.current.value = '';
+                    }
+                  }}
+                />
+
+                {/* List of uploaded custom templates */}
+                {config.templates && config.templates.length > 0 && (
+                  <div className="space-y-2 mt-4">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Uploaded Keyword Templates</label>
+                    <div className="grid grid-cols-1 gap-2">
+                      {config.templates.map((t, idx) => (
+                        <div key={idx} className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50/50 group">
+                          <img
+                            src={t.templateUrl}
+                            alt={t.keyword}
+                            className="w-12 h-12 rounded-lg object-cover border border-slate-200"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-charcoal truncate">{t.keyword}</p>
+                            <a
+                              href={t.templateUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[9px] text-[#4285F4] hover:underline truncate block"
+                            >
+                              View Image
+                            </a>
+                          </div>
+                          <button
+                            onClick={async () => {
+                              if (!confirm(`Remove the template for "${t.keyword}"?`)) return;
+                              try {
+                                const { removeTemplate } = await import('../services/api');
+                                const res = await removeTemplate(config.slug || 'gemma4-kozhikode', sessionEmail, sessionPassword, t.keyword);
+                                onUpdateConfig(res.config || {
+                                  ...config,
+                                  templates: (config.templates || []).filter(item => item.keyword.toLowerCase() !== t.keyword.toLowerCase())
+                                });
+                              } catch (err) {
+                                setMultiTemplateError(err.message || 'Delete failed');
+                              }
+                            }}
+                            className="text-[#EA4335] text-[10px] font-bold hover:underline px-2.5 py-1 rounded-lg hover:bg-[#EA4335]/5"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </section>
 
               <Divider />

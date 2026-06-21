@@ -18,6 +18,14 @@ const eventConfigSchema = new mongoose.Schema(
     // Poster template uploaded via Cloudinary
     templateUrl:      { type: String, default: null },
     templatePublicId: { type: String, default: null },
+    templates: {
+      type: [{
+        keyword:          { type: String, required: true },
+        templateUrl:      { type: String, required: true },
+        templatePublicId: { type: String, required: true },
+      }],
+      default: []
+    },
     // Page background image uploaded via Cloudinary
     backgroundImageUrl:      { type: String, default: null },
     backgroundImagePublicId: { type: String, default: null },

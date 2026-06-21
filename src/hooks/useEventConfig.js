@@ -11,6 +11,7 @@ const getDefaultConfig = (slug) => ({
   headerLogoHeight: 40,
   templateUrl: null,
   templatePublicId: null,
+  templates: [],
   backgroundImageUrl: null,
   backgroundImagePublicId: null,
   bannerUrl: null,

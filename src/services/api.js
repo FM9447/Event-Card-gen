@@ -100,13 +100,16 @@ export async function fetchStats(slug) {
  * @param {string} slug   - event slug
  * @param {function} onProgress - optional progress callback (0-100)
  */
-export async function uploadTemplate(file, slug, onProgress, sessionEmail, sessionPassword) {
+export async function uploadTemplate(file, slug, onProgress, sessionEmail, sessionPassword, keyword) {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     formData.append('template', file);
     formData.append('slug', slug);
     formData.append('sessionEmail', sessionEmail || '');
     formData.append('sessionPassword', sessionPassword || '');
+    if (keyword) {
+      formData.append('keyword', keyword.trim());
+    }
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `${BASE}/upload/template`, true);
@@ -147,6 +150,8 @@ export async function removeBgServer(file) {
   const formData = new FormData();
   formData.append('photo', file);
 
+  console.log(`[DEBUG] VITE_AZURE_BG_REMOVER_URL:`, import.meta.env.VITE_AZURE_BG_REMOVER_URL);
+
   const primaryUrl = import.meta.env.VITE_AZURE_BG_REMOVER_URL || 'http://localhost:8080/remove-bg';
   const fallbackUrl = `${BASE}/upload/remove-bg`;
 
@@ -183,10 +188,11 @@ export async function removeBgServer(file) {
 }
 
 
-export async function removeTemplate(slug, sessionEmail, sessionPassword) {
+export async function removeTemplate(slug, sessionEmail, sessionPassword, keyword) {
   const emailParam = encodeURIComponent(sessionEmail || '');
   const passParam = encodeURIComponent(sessionPassword || '');
-  const res = await fetch(`/api/upload/template/${slug}?email=${emailParam}&password=${passParam}`, { method: 'DELETE' });
+  const keywordParam = keyword ? `&keyword=${encodeURIComponent(keyword.trim())}` : '';
+  const res = await fetch(`/api/upload/template/${slug}?email=${emailParam}&password=${passParam}${keywordParam}`, { method: 'DELETE' });
   const data = await res.json();
   if (!data.ok) throw new Error(data.error || 'Failed to remove template');
   return data;

@@ -165,6 +165,9 @@ export default function App() {
     localStorage.removeItem(`admin-logged-in-slug-${activeSlug}`);
     localStorage.removeItem(`admin-logged-in-email-${activeSlug}`);
     localStorage.removeItem(`admin-logged-in-password-${activeSlug}`);
+    localStorage.removeItem('global-logged-in');
+    localStorage.removeItem('global-logged-in-email');
+    localStorage.removeItem('global-logged-in-password');
     setSession({ email: '', password: '' });
   };
 

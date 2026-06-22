@@ -246,7 +246,11 @@ export default function App() {
         </div>
       )}
       
-      <Header config={config} onOrganizerClick={() => setAdminOpen(true)} />
+      <Header 
+        config={config} 
+        onOrganizerClick={() => setAdminOpen(true)} 
+        isLoggedIn={!!session.email && !!session.password} 
+      />
 
       {/* ── Event Hero ── */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 relative z-10">

@@ -1,6 +1,6 @@
 import SparkleIcon from './SparkleIcon';
 
-export default function Header({ config, onOrganizerClick }) {
+export default function Header({ config, onOrganizerClick, isLoggedIn }) {
   return (
     <header
       id="site-header"
@@ -59,20 +59,22 @@ export default function Header({ config, onOrganizerClick }) {
           </button>
 
           {/* Organizer login */}
-          <button
-            id="organizer-login-btn"
-            onClick={onOrganizerClick}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold
-                       border bg-white/80 backdrop-blur-sm
-                       hover:shadow-glass hover:bg-white
-                       active:scale-95 transition-all duration-200 cursor-pointer"
-            style={{
-              color: 'var(--color-header-text)',
-              borderColor: 'rgba(148, 163, 184, 0.2)',
-            }}
-          >
-            ⚙️ Panel
-          </button>
+          {isLoggedIn && (
+            <button
+              id="organizer-login-btn"
+              onClick={onOrganizerClick}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold
+                         border bg-white/80 backdrop-blur-sm
+                         hover:shadow-glass hover:bg-white
+                         active:scale-95 transition-all duration-200 cursor-pointer"
+              style={{
+                color: 'var(--color-header-text)',
+                borderColor: 'rgba(148, 163, 184, 0.2)',
+              }}
+            >
+              ⚙️ Panel
+            </button>
+          )}
         </div>
       </div>
     </header>

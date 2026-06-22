@@ -80,4 +80,21 @@ const eventConfigSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Scrub sensitive access credentials from JSON and object serializations before sending to the client
+eventConfigSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    delete ret.adminEmail;
+    delete ret.adminPassword;
+    return ret;
+  }
+});
+
+eventConfigSchema.set('toObject', {
+  transform: (doc, ret) => {
+    delete ret.adminEmail;
+    delete ret.adminPassword;
+    return ret;
+  }
+});
+
 export default mongoose.model('EventConfig', eventConfigSchema);

@@ -1037,7 +1037,7 @@ function HomePage() {
             <img src="/logo.png" alt="" className="w-5 h-5 rounded-md object-cover" />
             <span className="text-xs font-bold text-charcoal">Poster Gen</span>
           </div>
-          <p className="text-[10px] text-slate-400">Built with AI · µLearn Dev Community</p>
+          <p className="text-[10px] text-slate-400">Built with AI</p>
         </div>
       </footer>
     </div>

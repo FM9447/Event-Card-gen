@@ -512,32 +512,33 @@ export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER
   roundRect(ctx, 0, 1210, w, h - 1210, 0);
   ctx.fill();
 
-  ctx.font = '500 13px Inter, sans-serif';
-  ctx.fillStyle = '#94A3B8';
-  ctx.textAlign = 'center';
-  ctx.fillText('IN PARTNERSHIP WITH', w / 2, 1242);
+  const partners = config.partners && config.partners.length > 0 ? config.partners : [];
+  if (partners.length > 0) {
+    ctx.font = '500 13px Inter, sans-serif';
+    ctx.fillStyle = '#94A3B8';
+    ctx.textAlign = 'center';
+    ctx.fillText('IN PARTNERSHIP WITH', w / 2, 1242);
 
-  // Partner name pills
-  const partners = config.partners || ['Build with AI', 'IOCOD', 'CAFIT', 'Cyberpark'];
-  const pillY = 1278;
-  const pillH = 36;
-  let pillX = 56;
-  const gap = 12;
-  ctx.font = '600 14px Inter, sans-serif';
-  partners.slice(0, 6).forEach((p, i) => {
-    const partnerName = typeof p === 'string' ? p : p.name;
-    const tw = ctx.measureText(partnerName).width;
-    const pw = tw + 28;
-    const colors = ['#4285F4', '#34A853', '#FBBC04', '#EA4335', '#4285F4', '#34A853'];
-    ctx.fillStyle = colors[i % colors.length] + '18';
-    roundRect(ctx, pillX, pillY - 22, pw, pillH, 18);
-    ctx.fill();
-    ctx.fillStyle = colors[i % colors.length];
-    ctx.textAlign = 'left';
-    ctx.fillText(partnerName, pillX + 14, pillY + 6);
-    pillX += pw + gap;
-    if (pillX > w - 100) { pillX = 56; }
-  });
+    const pillY = 1278;
+    const pillH = 36;
+    let pillX = 56;
+    const gap = 12;
+    ctx.font = '600 14px Inter, sans-serif';
+    partners.slice(0, 6).forEach((p, i) => {
+      const partnerName = typeof p === 'string' ? p : p.name;
+      const tw = ctx.measureText(partnerName).width;
+      const pw = tw + 28;
+      const colors = ['#4285F4', '#34A853', '#FBBC04', '#EA4335', '#4285F4', '#34A853'];
+      ctx.fillStyle = colors[i % colors.length] + '18';
+      roundRect(ctx, pillX, pillY - 22, pw, pillH, 18);
+      ctx.fill();
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.textAlign = 'left';
+      ctx.fillText(partnerName, pillX + 14, pillY + 6);
+      pillX += pw + gap;
+      if (pillX > w - 100) { pillX = 56; }
+    });
+  }
   ctx.restore();
 
   // 11. Bottom accent bar

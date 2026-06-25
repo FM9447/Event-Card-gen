@@ -68,12 +68,7 @@ const eventConfigSchema = new mongoose.Schema(
     adminEmail:        { type: String, default: '' },
     adminPassword:     { type: String, default: '' },
     allowedEmails:     { type: [String], default: [] },
-    partners:   { type: [partnerSchema], default: () => ([
-      { id: '1', name: 'Build with AI', logo: null },
-      { id: '2', name: 'IOCOD',         logo: null },
-      { id: '3', name: 'CAFIT',         logo: null },
-      { id: '4', name: 'Cyberpark',     logo: null },
-    ]) },
+    partners:   { type: [partnerSchema], default: () => [] },
   },
   { timestamps: true }
 );

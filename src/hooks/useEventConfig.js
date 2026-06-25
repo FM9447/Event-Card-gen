@@ -43,12 +43,7 @@ const getDefaultConfig = (slug) => ({
   themeHeaderBg: '#F8F9FA',
   themeHeaderBgOpacity: 85,
   themeHeaderText: '#1A1A1A',
-  partners: [
-    { id: '1', name: 'Build with AI',  logo: null },
-    { id: '2', name: 'IOCOD',          logo: null },
-    { id: '3', name: 'CAFIT',          logo: null },
-    { id: '4', name: 'Cyberpark',      logo: null },
-  ],
+  partners: [],
 });
 
 // Debounce helper — avoids a PUT on every single keystroke

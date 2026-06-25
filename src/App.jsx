@@ -357,11 +357,13 @@ export default function App() {
             {/* Info cards */}
             <InfoCards config={config} />
             {/* Partners block */}
-            <PartnersBlock
-              partners={config.partners}
-              themePrimary={config.themePrimary}
-              themeSecondary={config.themeSecondary}
-            />
+            {config.partners && config.partners.length > 0 && (
+              <PartnersBlock
+                partners={config.partners}
+                themePrimary={config.themePrimary}
+                themeSecondary={config.themeSecondary}
+              />
+            )}
           </div>
         </div>
 
@@ -371,16 +373,21 @@ export default function App() {
 
       {/* Footer */}
       <footer
-        className="mt-12 border-t py-6 text-center transition-all duration-200"
+        className="mt-12 border-t py-6 transition-all duration-200"
         style={{
           background: 'var(--color-header-bg)',
           color: 'var(--color-header-text)',
           borderColor: 'rgba(226, 232, 240, 0.4)',
         }}
       >
-        <p className="text-sm font-medium opacity-70">
-          Event Poster Generator
-        </p>
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="" className="w-5 h-5 rounded-md object-cover" />
+            <span className="text-xs font-bold">Poster Gen</span>
+          </div>
+          <span className="text-[10px] opacity-70 hidden sm:inline">·</span>
+          <span className="text-[10px] opacity-70">Open Source</span>
+        </div>
       </footer>
 
       {/* Admin Panel Drawer */}
@@ -1037,7 +1044,7 @@ function HomePage() {
             <img src="/logo.png" alt="" className="w-5 h-5 rounded-md object-cover" />
             <span className="text-xs font-bold text-charcoal">Poster Gen</span>
           </div>
-          <p className="text-[10px] text-slate-400">Built with AI</p>
+          <p className="text-[10px] text-slate-400">Open Source</p>
         </div>
       </footer>
     </div>

@@ -518,7 +518,7 @@ export function drawPoster(ctx, { userImg, templateImg, config, canvasW = POSTER
   ctx.fillText('IN PARTNERSHIP WITH', w / 2, 1242);
 
   // Partner name pills
-  const partners = config.partners || ['Build with AI', 'µLearn', 'IOCOD', 'CAFIT', 'GTECH Mulearn', 'Cyberpark'];
+  const partners = config.partners || ['Build with AI', 'IOCOD', 'CAFIT', 'Cyberpark'];
   const pillY = 1278;
   const pillH = 36;
   let pillX = 56;

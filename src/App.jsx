@@ -379,7 +379,7 @@ export default function App() {
         }}
       >
         <p className="text-sm font-medium opacity-70">
-          Powered by <a href="https://mulearn.org" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-100 transition-opacity">μLearn</a>
+          Event Poster Generator
         </p>
       </footer>
 

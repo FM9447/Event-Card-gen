@@ -45,11 +45,9 @@ const getDefaultConfig = (slug) => ({
   themeHeaderText: '#1A1A1A',
   partners: [
     { id: '1', name: 'Build with AI',  logo: null },
-    { id: '2', name: 'µLearn',         logo: null },
-    { id: '3', name: 'IOCOD',          logo: null },
-    { id: '4', name: 'CAFIT',          logo: null },
-    { id: '5', name: 'GTECH Mulearn',  logo: null },
-    { id: '6', name: 'Cyberpark',      logo: null },
+    { id: '2', name: 'IOCOD',          logo: null },
+    { id: '3', name: 'CAFIT',          logo: null },
+    { id: '4', name: 'Cyberpark',      logo: null },
   ],
 });
 
